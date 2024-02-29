@@ -3,14 +3,13 @@ package com.nttdata.account.model.enums;
 import lombok.Getter;
 
 @Getter
-public enum MovementLimitTypeEnum {
-    SPECIFIC_DAY_MONTH("specific_day_month"),
-    MONTHLY("monthly"),
-    NO_LIMIT("no_limit");
+public enum StatusTypeEnum {
+    ACTIVE("active"),
+    BUSINESS("business");
 
-    private final String value;
+    private String value;
 
-    MovementLimitTypeEnum(String value) {
+    StatusTypeEnum(String value) {
         this.value = value;
     }
 
@@ -19,8 +18,8 @@ public enum MovementLimitTypeEnum {
         return String.valueOf(value);
     }
 
-    public static MovementLimitTypeEnum fromValue(String value) {
-        for (MovementLimitTypeEnum b : MovementLimitTypeEnum.values()) {
+    public static StatusTypeEnum fromValue(String value) {
+        for (StatusTypeEnum b : StatusTypeEnum.values()) {
             if (b.value.equals(value)) {
                 return b;
             }

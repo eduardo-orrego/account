@@ -6,7 +6,7 @@ import lombok.Getter;
 public enum AccountTypeEnum {
     SAVINGS("savings"),
     CHECKING("checking"),
-    TIME_DEPOSIT("time_deposit");
+    TERM_DEPOSIT("term_deposit");
 
     private final String value;
 

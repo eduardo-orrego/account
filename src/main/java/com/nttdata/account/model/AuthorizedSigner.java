@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AccountAuthorizedSigner {
+public class AuthorizedSigner {
     @JsonProperty(value = "authorized_signer_id")
     private String authorizedSignerId;
 

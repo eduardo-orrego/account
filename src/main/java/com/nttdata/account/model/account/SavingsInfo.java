@@ -1,4 +1,4 @@
-package com.nttdata.account.model;
+package com.nttdata.account.model.account;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
@@ -16,10 +16,7 @@ public class SavingsInfo {
     @JsonProperty(value = "interest_rate")
     private BigDecimal interestRate;
 
-    @JsonProperty(value = "monthly movements")
+    @JsonProperty(value = "monthly_movements")
     private BigDecimal monthlyMovements;
-
-    @JsonProperty(value = "maintenance_fee")
-    private BigDecimal maintenanceFee;
 
 }

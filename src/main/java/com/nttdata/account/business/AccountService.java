@@ -1,6 +1,6 @@
 package com.nttdata.account.business;
 
-import com.nttdata.account.model.Account;
+import com.nttdata.account.model.account.Account;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

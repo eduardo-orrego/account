@@ -1,9 +1,11 @@
-package com.nttdata.account.model;
+package com.nttdata.account.model.account;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.nttdata.account.model.enums.AccountTypeEnum;
 import com.nttdata.account.model.enums.CurrencyTypeEnum;
 import com.nttdata.account.model.enums.StatusTypeEnum;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
@@ -45,9 +47,11 @@ public class Account {
     @JsonProperty(value = "currency")
     private CurrencyTypeEnum currency;
 
+    @NotEmpty
     @JsonProperty(value = "account_holders")
     private List<AccountHolder> accountHolders;
 
+    @NotNull
     @JsonProperty(value = "authorized_signers")
     private List<AuthorizedSigner> authorizedSigners;
 

@@ -1,6 +1,6 @@
 package com.nttdata.account.repository;
 
-import com.nttdata.account.model.Account;
+import com.nttdata.account.model.account.Account;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.stereotype.Repository;

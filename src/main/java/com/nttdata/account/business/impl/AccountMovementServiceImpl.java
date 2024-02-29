@@ -1,7 +1,7 @@
 package com.nttdata.account.business.impl;
 
 import com.nttdata.account.business.AccountMovementService;
-import com.nttdata.account.model.AccountMovement;
+import com.nttdata.account.model.account.AccountMovement;
 import com.nttdata.account.repository.AccountMovementRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

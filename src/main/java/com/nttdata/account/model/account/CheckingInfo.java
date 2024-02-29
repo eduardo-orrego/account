@@ -1,4 +1,4 @@
-package com.nttdata.account.model;
+package com.nttdata.account.model.account;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;

@@ -1,7 +1,7 @@
 package com.nttdata.account.api;
 
 import com.nttdata.account.business.AccountMovementService;
-import com.nttdata.account.model.AccountMovement;
+import com.nttdata.account.model.account.AccountMovement;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;

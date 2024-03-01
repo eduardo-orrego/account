@@ -11,16 +11,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CheckingInfo {
 
-    @JsonProperty(value = "minimum_balance")
+    @JsonProperty(value = "minimumBalance")
     private BigDecimal minimumBalance;
 
-    @JsonProperty(value = "checkbook_number")
+    @JsonProperty(value = "checkbookNumber")
     private BigDecimal checkbookNumber;
 
-    @JsonProperty(value = "number_checks")
+    @JsonProperty(value = "numberChecks")
     private Integer numberChecks;
 
-    @JsonProperty(value = "maintenance_fee")
+    @JsonProperty(value = "maintenanceFee")
     private BigDecimal maintenanceFee;
 
 }

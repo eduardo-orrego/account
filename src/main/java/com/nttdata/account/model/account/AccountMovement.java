@@ -20,14 +20,14 @@ public class AccountMovement {
     @Id
     private String id;
 
-    @JsonProperty(value = "transaction_type")
+    @JsonProperty(value = "transactionType")
     @Enumerated(EnumType.STRING)
     private AccountTransactionTypeEnum transactionType;
 
-    @JsonProperty(value = "transaction_date")
+    @JsonProperty(value = "transactionDate")
     private String transactionDate;
 
-    @JsonProperty(value = "account_number")
+    @JsonProperty(value = "accountNumber")
     private String accountNumber;
 
     @JsonProperty(value = "amount")

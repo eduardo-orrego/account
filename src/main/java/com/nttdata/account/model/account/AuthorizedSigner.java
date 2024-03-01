@@ -10,9 +10,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AuthorizedSigner {
-    @JsonProperty(value = "signer_id")
+    @JsonProperty(value = "signerId")
     private String signerId;
 
-    @JsonProperty(value = "signer_type")
+    @JsonProperty(value = "signerType")
     private SignerTypeEnum signerType;
 }

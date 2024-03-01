@@ -11,10 +11,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AccountHolder {
 
-    @JsonProperty(value = "holder_id")
+    @JsonProperty(value = "holderId")
     private String holderId;
 
-    @JsonProperty(value = "holder_type")
+    @JsonProperty(value = "holderType")
     private HolderTypeEnum holderType;
 
 }

@@ -10,13 +10,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SavingsInfo {
-    @JsonProperty(value = "savings_goal")
+    @JsonProperty(value = "savingsGoal")
     private String savingsGoal;
 
-    @JsonProperty(value = "interest_rate")
+    @JsonProperty(value = "interestRate")
     private BigDecimal interestRate;
 
-    @JsonProperty(value = "monthly_movements")
+    @JsonProperty(value = "monthlyMovements")
     private BigDecimal monthlyMovements;
 
 }

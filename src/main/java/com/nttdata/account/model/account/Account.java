@@ -29,44 +29,44 @@ public class Account {
 
     @JsonProperty(value = "type")
     @Enumerated(EnumType.STRING)
-    private AccountTypeEnum accountType;
+    private AccountTypeEnum type;
 
     @JsonProperty(value = "status")
     @Enumerated(EnumType.STRING)
     private StatusTypeEnum status;
 
-    @JsonProperty(value = "account_number")
+    @JsonProperty(value = "accountNumber")
     private BigInteger accountNumber;
 
-    @JsonProperty(value = "opening_date")
+    @JsonProperty(value = "openingDate")
     private LocalDateTime openingDate;
 
-    @JsonProperty(value = "available_balance")
+    @JsonProperty(value = "availableBalance")
     private BigDecimal availableBalance;
 
     @JsonProperty(value = "currency")
     private CurrencyTypeEnum currency;
 
     @NotEmpty
-    @JsonProperty(value = "account_holders")
+    @JsonProperty(value = "accountHolders")
     private List<AccountHolder> accountHolders;
 
     @NotNull
-    @JsonProperty(value = "authorized_signers")
+    @JsonProperty(value = "authorizedSigners")
     private List<AuthorizedSigner> authorizedSigners;
 
-    @JsonProperty(value = "savings_info")
+    @JsonProperty(value = "savingsInfo")
     private SavingsInfo savingsInfo;
 
-    @JsonProperty(value = "term_deposit_info")
+    @JsonProperty(value = "termDepositInfo")
     private TermDepositInfo termDepositInfo;
 
-    @JsonProperty(value = "checking_info")
+    @JsonProperty(value = "checkingInfo")
     private CheckingInfo checkingInfo;
 
-    @JsonProperty(value = "date_created")
+    @JsonProperty(value = "dateCreated")
     private LocalDateTime dateCreated;
 
-    @JsonProperty(value = "last_updated")
+    @JsonProperty(value = "lastUpdated")
     private LocalDateTime lastUpdated;
 }

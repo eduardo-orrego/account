@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Customer {
     private String id;
-    private String typeCustomer;
+    private String type;
     private String status;
     private Address address;
     private List<IdentificationDocument> identificationDocuments;

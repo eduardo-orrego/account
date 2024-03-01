@@ -11,15 +11,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class TermDepositInfo {
 
-    @JsonProperty(value = "term_length")
+    @JsonProperty(value = "termLength")
     private Integer termLength;
 
-    @JsonProperty(value = "maturity_date")
+    @JsonProperty(value = "maturityDate")
     private LocalDate maturityDate;
 
-    @JsonProperty(value = "quantity_movements")
+    @JsonProperty(value = "quantityMovements")
     private Integer quantityMovements;
 
-    @JsonProperty(value = "day_month_movements")
+    @JsonProperty(value = "dayMonthMovements")
     private Integer dayMonthMovements;
 }

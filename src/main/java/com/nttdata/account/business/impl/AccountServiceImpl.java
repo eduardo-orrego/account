@@ -8,6 +8,7 @@ import com.nttdata.account.model.enums.AccountTypeEnum;
 import com.nttdata.account.model.enums.CustomerTypeEnum;
 import com.nttdata.account.model.enums.HolderTypeEnum;
 import com.nttdata.account.repository.AccountRepository;
+import java.math.BigInteger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -26,14 +27,17 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Mono<Account> getAccountByAccountNumber(String accountId) {
-        return accountRepository.findByAccountNumber(accountId);
+    public Mono<Account> getAccountByAccountNumber(BigInteger accountNumber) {
+        return accountRepository.findByAccountNumber(accountNumber)
+            .switchIfEmpty(Mono.error(new RuntimeException("Numero de cuenta no existe")));
     }
 
     @Override
     public Flux<Account> getAccountsByHolderId(String holderId) {
 
-        return accountRepository.findByAccountHoldersHolderId(holderId);
+        return accountRepository.findByAccountHoldersHolderId(holderId)
+            .switchIfEmpty(Mono.error(new RuntimeException("No se encontraron cuentas asociadas al cliente "
+                .concat(holderId))));
     }
 
     @Override

@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.constraints.NotNull;
+import java.math.BigInteger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -81,7 +82,7 @@ public class AccountController {
     )
     public Mono<Account> accountsAccountNumberGet(
         @Parameter(name = "accountNumber", description = "", required = true, in = ParameterIn.PATH)
-        @PathVariable("accountNumber") String accountNumber
+        @PathVariable("accountNumber") BigInteger accountNumber
     ) {
         return accountService.getAccountByAccountNumber(accountNumber);
     }

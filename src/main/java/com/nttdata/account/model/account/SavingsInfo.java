@@ -17,6 +17,6 @@ public class SavingsInfo {
     private BigDecimal interestRate;
 
     @JsonProperty(value = "monthlyMovements")
-    private BigDecimal monthlyMovements;
+    private Integer monthlyMovements;
 
 }

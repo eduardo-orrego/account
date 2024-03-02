@@ -17,9 +17,6 @@ public class TermDepositInfo {
     @JsonProperty(value = "maturityDate")
     private LocalDate maturityDate;
 
-    @JsonProperty(value = "quantityMovements")
-    private Integer quantityMovements;
-
-    @JsonProperty(value = "dayMonthMovements")
-    private Integer dayMonthMovements;
+    @JsonProperty(value = "dayMonthMovement")
+    private Integer dayMonthMovement;
 }

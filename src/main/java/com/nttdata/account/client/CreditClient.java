@@ -10,7 +10,7 @@ import reactor.core.publisher.Flux;
 @Component
 public class CreditClient {
 
-    @Value("${microservices.customer.urlPaths.getCreditsByCustomerId}")
+    @Value("${microservices.credit.urlPaths.getCreditsByCustomerId}")
     private String urlPathGetCreditsByCustomerId;
 
     public Flux<Credit> getCreditsByCustomerId(String customerId) {

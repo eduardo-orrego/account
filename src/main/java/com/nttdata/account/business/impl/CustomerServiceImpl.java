@@ -22,4 +22,10 @@ public class CustomerServiceImpl implements CustomerService {
     public Mono<Customer> getCustomerById(String customerId) {
         return customerClient.getCustomerById(customerId);
     }
+
+    @Override
+    public Mono<Customer> putCustomer(Customer customer) {
+        return customerClient.putCustomer(customer);
+    }
 }
+

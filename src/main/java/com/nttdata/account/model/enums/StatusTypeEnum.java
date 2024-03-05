@@ -4,8 +4,8 @@ import lombok.Getter;
 
 @Getter
 public enum StatusTypeEnum {
-    ACTIVE("active"),
-    BUSINESS("business");
+    ACTIVE("ACTIVE"),
+    BUSINESS("INACTIVE");
 
     private String value;
 

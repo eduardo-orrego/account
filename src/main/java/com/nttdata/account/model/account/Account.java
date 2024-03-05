@@ -45,6 +45,7 @@ public class Account {
     private BigDecimal availableBalance;
 
     @JsonProperty(value = "currency")
+    @Enumerated(EnumType.STRING)
     private CurrencyTypeEnum currency;
 
     @NotEmpty

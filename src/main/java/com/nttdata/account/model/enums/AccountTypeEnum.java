@@ -4,9 +4,9 @@ import lombok.Getter;
 
 @Getter
 public enum AccountTypeEnum {
-    SAVINGS("savings"),
-    CHECKING("checking"),
-    TERM_DEPOSIT("term_deposit");
+    SAVINGS("SAVINGS"),
+    CHECKING("CHECKING"),
+    TERM_DEPOSIT("TERM_DEPOSIT");
 
     private final String value;
 

@@ -1,9 +1,6 @@
-package com.nttdata.account.model.account;
+package com.nttdata.account.model.credit;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.nttdata.account.model.enums.SignerTypeEnum;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,6 +13,5 @@ public class AuthorizedSigner {
     private String signerId;
 
     @JsonProperty(value = "signerType")
-    @Enumerated(EnumType.STRING)
-    private SignerTypeEnum signerType;
+    private String signerType;
 }

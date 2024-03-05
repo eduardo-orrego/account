@@ -11,4 +11,6 @@ public interface AccountService {
     Flux<Account> getAccountsByHolderId(String holderId);
 
     Mono<Account> saveAccount(Account account);
+
+    Mono<Account> updateAccount(Account account);
 }

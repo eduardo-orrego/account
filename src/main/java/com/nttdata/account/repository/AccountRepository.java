@@ -14,4 +14,5 @@ public interface AccountRepository extends ReactiveMongoRepository<Account, Stri
     Flux<Account> findByAccountHoldersHolderId(String holderId);
 
     Mono<Boolean> existsByTypeAndAccountHoldersHolderId(String type, String holderId);
+
 }

@@ -13,6 +13,9 @@ public class CustomerClient {
     @Value("${microservices.customer.urlPaths.getCustomerById}")
     private String urlPathGetCustomerById;
 
+    @Value("${microservices.customer.urlPaths.putCustomer}")
+    private String urlPathPutCustomer;
+
     public Mono<Customer> getCustomerById(String customerId) {
         return WebClient.create()
             .get()
@@ -21,4 +24,15 @@ public class CustomerClient {
             .retrieve()
             .bodyToMono(Customer.class);
     }
+
+    public Mono<Customer> putCustomer(Customer customer) {
+        return WebClient.create()
+            .put()
+            .uri(urlPathPutCustomer)
+            .accept(MediaType.APPLICATION_JSON)
+            .bodyValue(customer)
+            .retrieve()
+            .bodyToMono(Customer.class);
+    }
+
 }

@@ -1,10 +1,13 @@
 package com.nttdata.account.business.impl;
 
 import com.nttdata.account.business.AccountService;
+import com.nttdata.account.business.CreditService;
 import com.nttdata.account.business.CustomerService;
 import com.nttdata.account.model.account.Account;
 import com.nttdata.account.model.account.AccountHolder;
 import com.nttdata.account.model.enums.AccountTypeEnum;
+import com.nttdata.account.model.enums.CreditTypeEnum;
+import com.nttdata.account.model.enums.CustomerSubTypeEnum;
 import com.nttdata.account.model.enums.CustomerTypeEnum;
 import com.nttdata.account.model.enums.HolderTypeEnum;
 import com.nttdata.account.repository.AccountRepository;
@@ -19,11 +22,14 @@ public class AccountServiceImpl implements AccountService {
 
     private final AccountRepository accountRepository;
     private final CustomerService customerService;
+    private final CreditService creditService;
 
     @Autowired
-    public AccountServiceImpl(AccountRepository accountRepository, CustomerService customerService) {
+    public AccountServiceImpl(AccountRepository accountRepository, CustomerService customerService,
+        CreditService creditService) {
         this.accountRepository = accountRepository;
         this.customerService = customerService;
+        this.creditService = creditService;
     }
 
     @Override
@@ -46,6 +52,11 @@ public class AccountServiceImpl implements AccountService {
             .flatMap(accountRepository::save);
     }
 
+    @Override
+    public Mono<Account> updateAccount(Account account) {
+        return accountRepository.save(account);
+    }
+
     private Mono<Account> validationData(Account account) {
 
         String customerId = account.getAccountHolders().stream()
@@ -58,27 +69,41 @@ public class AccountServiceImpl implements AccountService {
             .flatMap(customerData -> {
                 String customerType = customerData.getType();
 
-                if (customerType.equals(CustomerTypeEnum.BUSINESS.name())) {
-                    if (accountType.equals(AccountTypeEnum.CHECKING.name())) {
-                        return Mono.just(account);
-                    } else {
-                        return Mono.error(new RuntimeException("Solo se permite cuentas corrientes " +
-                            " para cliente empresarial"));
-                    }
-                } else {
+                if (customerType.equals(CustomerTypeEnum.PERSONAL.name())) {
                     return accountRepository.existsByTypeAndAccountHoldersHolderId(accountType, customerId)
                         .flatMap(existsAccount -> {
                             if (Boolean.TRUE.equals(existsAccount)) {
                                 return Mono.error(new RuntimeException("El Cliente Personal ya tiene una " +
                                     "cuenta del tipo ".concat(accountType)));
-                            } else {
-                                return Mono.just(account);
                             }
+
+                            if(account.getAvailableBalance().doubleValue() >= 500.00){
+                                customerData.setSubType(CustomerSubTypeEnum.PYME.name());
+                                return customerService.putCustomer(customerData)
+                                    .flatMap(customer -> Mono.just(account));
+                            }
+                            return Mono.just(account);
                         });
                 }
+
+                if (customerType.equals(CustomerTypeEnum.BUSINESS.name())) {
+                    if (!accountType.equals(AccountTypeEnum.CHECKING.name())) {
+                        return Mono.error(new RuntimeException("Solo se permite cuentas corrientes " +
+                            " para cliente empresarial"));
+                    }
+                    return creditService.getCreditsByCustomerId(customerId)
+                        .any(credit -> credit.getType().equals(CreditTypeEnum.CREDIT_CARD.name()))
+                        .flatMap(aBoolean1 -> {
+                            if (aBoolean1) {
+                                customerData.setSubType(CustomerSubTypeEnum.PYME.name());
+                                return customerService.putCustomer(customerData)
+                                    .flatMap(customer -> Mono.just(account));
+                            }
+                            return Mono.just(account);
+                        });
+
+                }
+                return Mono.just(account);
             }).switchIfEmpty(Mono.error(new RuntimeException("No se encontraron datos del titular")));
     }
 }
-
-
-

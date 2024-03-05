@@ -3,15 +3,14 @@ package com.nttdata.account.model.enums;
 import lombok.Getter;
 
 @Getter
-public enum CustomerTypeEnum {
-    PERSONAL("PERSONAL"),
-    BUSINESS("BUSINESS"),
-    PERSONAL_VIP("PERSONAL_VIP"),
-    BUSINESS_PYME("BUSINESS_PYME");;
+public enum CustomerSubTypeEnum {
+    NORMAL("NORMAL"),
+    VIP("VIP"),
+    PYME("PYME");
 
     private String value;
 
-    CustomerTypeEnum(String value) {
+    CustomerSubTypeEnum(String value) {
         this.value = value;
     }
 
@@ -20,8 +19,8 @@ public enum CustomerTypeEnum {
         return String.valueOf(value);
     }
 
-    public static CustomerTypeEnum fromValue(String value) {
-        for (CustomerTypeEnum b : CustomerTypeEnum.values()) {
+    public static CustomerSubTypeEnum fromValue(String value) {
+        for (CustomerSubTypeEnum b : CustomerSubTypeEnum.values()) {
             if (b.value.equals(value)) {
                 return b;
             }

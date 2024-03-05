@@ -13,3 +13,7 @@ microservices:
   customer:
     urlPaths:
       getCustomerById: http://localhost:8081/api/customers/{customerId}
+      putCustomer: http://localhost:8081/api/customers
+  credit:
+    urlPaths:
+      getCreditsByCustomerId: http://localhost:8083/api/credits

@@ -19,4 +19,5 @@ public class TermDepositInfo {
 
     @JsonProperty(value = "dayMonthMovement")
     private Integer dayMonthMovement;
+
 }

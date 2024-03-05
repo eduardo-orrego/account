@@ -3,13 +3,13 @@ package com.nttdata.account.model.enums;
 import lombok.Getter;
 
 @Getter
-public enum AccountTransactionTypeEnum {
-    DEPOSIT("deposit"),
-    WITHDRAWAL("Withdrawal");
+public enum HolderTypeEnum {
+    PRIMARY("PRIMARY"),
+    SECONDARY("SECONDARY");
 
-    private final String value;
+    private String value;
 
-    AccountTransactionTypeEnum(String value) {
+    HolderTypeEnum(String value) {
         this.value = value;
     }
 
@@ -18,8 +18,8 @@ public enum AccountTransactionTypeEnum {
         return String.valueOf(value);
     }
 
-    public static AccountTransactionTypeEnum fromValue(String value) {
-        for (AccountTransactionTypeEnum b : AccountTransactionTypeEnum.values()) {
+    public static HolderTypeEnum fromValue(String value) {
+        for (HolderTypeEnum b : HolderTypeEnum.values()) {
             if (b.value.equals(value)) {
                 return b;
             }

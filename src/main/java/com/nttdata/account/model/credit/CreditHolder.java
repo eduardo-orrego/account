@@ -1,4 +1,4 @@
-package com.nttdata.account.model;
+package com.nttdata.account.model.credit;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -8,10 +8,12 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AccountHolder {
-    @JsonProperty(value = "holder_id")
+public class CreditHolder {
+
+    @JsonProperty(value = "holderId")
     private String holderId;
 
-    @JsonProperty(value = "holder_name")
-    private String holder_name;
+    @JsonProperty(value = "holderType")
+    private String holderType;
+
 }

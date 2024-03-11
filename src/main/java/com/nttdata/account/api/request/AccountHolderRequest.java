@@ -1,17 +1,17 @@
-package com.nttdata.account.model.account;
+package com.nttdata.account.api.request;
 
+import com.nttdata.account.enums.HolderTypeEnum;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AccountHolder {
+public class AccountHolderRequest {
 
     private String holderId;
-    private String holderType;
+
+    private HolderTypeEnum holderType;
 
 }

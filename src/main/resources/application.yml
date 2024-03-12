@@ -7,13 +7,19 @@ spring:
       database: demo
 
 server:
-  port: 8082
+  port: 8083
 
 microservices:
   customer:
     urlPaths:
       getCustomerById: http://localhost:8081/api/customers/{customerId}
       putCustomer: http://localhost:8081/api/customers/{customerId}
+  product:
+    urlPaths:
+      getProductByType: http://localhost:8082/api/product
   credit:
     urlPaths:
-      getCreditsByCustomerId: http://localhost:8083/api/credits
+      getCreditsByCustomerId: http://localhost:8085/api/credits
+  creditCards:
+    urlPaths:
+      getCreditCardsByCustomerId: http://localhost:8086/api/creditCards

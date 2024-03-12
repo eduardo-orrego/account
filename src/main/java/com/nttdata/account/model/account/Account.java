@@ -35,6 +35,7 @@ public class Account {
     private String customerId;
     private List<AccountHolder> accountHolders;
     private List<AuthorizedSigner> authorizedSigners;
+    private LocalDateTime lastTransactionDate;
     private LocalDateTime dateCreated;
     private LocalDateTime lastUpdated;
 }

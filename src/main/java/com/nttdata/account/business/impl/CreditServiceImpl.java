@@ -2,7 +2,7 @@ package com.nttdata.account.business.impl;
 
 import com.nttdata.account.business.CreditService;
 import com.nttdata.account.client.CreditClient;
-import com.nttdata.account.model.credit.Credit;
+import com.nttdata.account.model.Credit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -18,8 +18,8 @@ public class CreditServiceImpl implements CreditService {
     }
 
     @Override
-    public Flux<Credit> getCreditsByCustomerId(String customerId) {
-        return creditClient.getCreditsByCustomerId(customerId);
+    public Flux<Credit> getCredits(String customerId) {
+        return creditClient.getCredits(customerId);
     }
 
 }

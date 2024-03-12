@@ -14,7 +14,6 @@ import jakarta.validation.constraints.NotNull;
 import java.math.BigInteger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -143,27 +142,6 @@ public class AccountController {
         @Validated @RequestParam(value = "customerId") String customerId
     ) {
         return accountService.getAccountsByCustomerId(customerId);
-    }
-
-    /**
-     * DELETE : Delete an account exists
-     *
-     * @param accountId (required)
-     * @return Ok (status code 200)
-     */
-    @Operation(
-        operationId = "accountDelete",
-        summary = "Delete a account",
-        responses = {
-            @ApiResponse(responseCode = "200", description = "Deleted")
-        }
-    )
-    @DeleteMapping("/{accountId}")
-    public Mono<Void> accountDelete(
-        @Parameter(name = "accountId", description = "", required = true, in = ParameterIn.PATH)
-        @PathVariable("accountId") String accountId
-    ) {
-        return accountService.deleteAccount(accountId);
     }
 
 }

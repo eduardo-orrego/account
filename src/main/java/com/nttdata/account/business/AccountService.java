@@ -16,6 +16,4 @@ public interface AccountService {
 
     Flux<Account> getAccountsByCustomerId(String customerId);
 
-    Mono<Void> deleteAccount(String accountId);
-
 }

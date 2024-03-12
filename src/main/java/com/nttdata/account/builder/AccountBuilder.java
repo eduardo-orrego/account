@@ -8,6 +8,7 @@ import com.nttdata.account.model.account.AccountHolder;
 import com.nttdata.account.model.account.AuthorizedSigner;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 public class AccountBuilder {
     AccountBuilder() {
@@ -44,9 +45,10 @@ public class AccountBuilder {
     }
 
     private static List<AccountHolder> toAccountHolderEntities(List<AccountHolderRequest> accountHolderRequestList) {
-        return accountHolderRequestList.stream()
-            .map(AccountBuilder::toAccountHolderEntity)
-            .toList();
+
+        return Objects.nonNull(accountHolderRequestList) && !accountHolderRequestList.isEmpty()
+            ? accountHolderRequestList.stream().map(AccountBuilder::toAccountHolderEntity).toList()
+            : null;
     }
 
     private static AuthorizedSigner toAuthorizedSignerEntity(AuthorizedSignerRequest authorizedSignerRequest) {
@@ -58,8 +60,8 @@ public class AccountBuilder {
 
     private static List<AuthorizedSigner> toAuthorizedSignerEntities(
         List<AuthorizedSignerRequest> authorizedSignerRequestList) {
-        return authorizedSignerRequestList.stream()
-            .map(AccountBuilder::toAuthorizedSignerEntity)
-            .toList();
+        return Objects.nonNull(authorizedSignerRequestList) && !authorizedSignerRequestList.isEmpty()
+            ? authorizedSignerRequestList.stream().map(AccountBuilder::toAuthorizedSignerEntity).toList()
+            : null;
     }
 }

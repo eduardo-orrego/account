@@ -14,6 +14,8 @@ public interface AccountService {
 
     Mono<Account> getAccountByAccountNumber(BigInteger accountNumber);
 
-    Flux<Account> getAccountsByHolderId(String holderId);
+    Flux<Account> getAccountsByCustomerId(String customerId);
+
+    Mono<Void> deleteAccount(String accountId);
 
 }

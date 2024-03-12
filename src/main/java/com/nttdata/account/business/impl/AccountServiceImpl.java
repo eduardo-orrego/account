@@ -68,12 +68,25 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Flux<Account> getAccountsByHolderId(String holderId) {
+    public Flux<Account> getAccountsByCustomerId(String customerId) {
 
-        return accountRepository.findByAccountHoldersHolderId(holderId)
+        return accountRepository.findByCustomerId(customerId)
             .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found - "
-                + "holderId: ".concat(holderId))))
-            .doOnComplete(() -> log.info("Successful search - holderId: ".concat(holderId)));
+                + "holderId: ".concat(customerId))))
+            .doOnComplete(() -> log.info("Successful search - holderId: ".concat(customerId)));
+    }
+
+    @Override
+    public Mono<Void> deleteAccount(String accountId) {
+        return accountRepository.existsById(accountId)
+            .flatMap(aBoolean -> {
+                if (Boolean.TRUE.equals(aBoolean)) {
+                    return accountRepository.deleteById(accountId);
+                }
+                return Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found - " +
+                    "accountId: ".concat(accountId)));
+            })
+            .doOnSuccess(customer -> log.info("Successful delete - accountId: ".concat(accountId)));
     }
 
     private Mono<AccountRequest> validationData(AccountRequest accountRequest) {
@@ -92,7 +105,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     private Mono<AccountRequest> validatePersonalAccount(AccountRequest accountData, Customer customerData) {
-        return accountRepository.existsByTypeAndAccountHoldersHolderId(accountData.getType().name(),
+        return accountRepository.existsByTypeAndCustomerId(accountData.getType().name(),
                 customerData.getId())
             .flatMap(existsAccount -> {
                 if (Boolean.TRUE.equals(existsAccount)) {
@@ -100,7 +113,7 @@ public class AccountServiceImpl implements AccountService {
                         + "cuenta del tipo ".concat(accountData.getType().name())));
                 }
                 if (accountData.getAvailableBalance().doubleValue() >= 500.00) {
-                    customerData.getPersonalInfo().setSubType(CustomerSubTypeEnum.PYME.name());
+                    customerData.getPersonalInfo().setSubType(CustomerSubTypeEnum.VIP.name());
                     return customerService.putCustomer(customerData)
                         .flatMap(result -> Mono.just(accountData));
                 }
@@ -109,6 +122,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     private Mono<AccountRequest> validateBusinessAccount(AccountRequest accountData, Customer customerData) {
+
         if (!accountData.getType().name().equals(AccountTypeEnum.CHECKING.name())) {
             return Mono.error(new RuntimeException("Solo se permite cuentas corrientes "
                 + " para cliente empresarial"));

@@ -1,9 +1,10 @@
 package com.nttdata.account.api.request;
 
+import com.nttdata.account.api.constraint.ValidAccount;
 import com.nttdata.account.enums.AccountTypeEnum;
 import com.nttdata.account.enums.CurrencyTypeEnum;
 import com.nttdata.account.enums.StatusTypeEnum;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -16,6 +17,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@ValidAccount
 public class AccountRequest {
 
     @NotNull(message = "El campo 'accountNumber' no puede ser nulo")
@@ -57,9 +59,10 @@ public class AccountRequest {
     @NotNull(message = "El campo 'customerId' no puede ser nulo")
     private String customerId;
 
-    @NotEmpty(message = "El campo 'accountHolders' no puede ser vacío")
+    @Valid
     private List<AccountHolderRequest> accountHolders;
 
+    @Valid
     private List<AuthorizedSignerRequest> authorizedSigners;
 
 }

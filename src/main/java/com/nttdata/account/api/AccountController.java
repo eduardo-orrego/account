@@ -14,6 +14,7 @@ import jakarta.validation.constraints.NotNull;
 import java.math.BigInteger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,7 +40,7 @@ public class AccountController {
     /**
      * POST : Create a new account
      *
-     * @param account (optional)
+     * @param account (required)
      * @return Created (status code 201)
      */
     @Operation(
@@ -57,7 +58,6 @@ public class AccountController {
         consumes = {"application/json"}
     )
     public Mono<Account> accountPost(
-        @Parameter(name = "account", description = "")
         @Validated @RequestBody(required = false) AccountRequest account
     ) {
         return accountService.saveAccount(account);
@@ -72,9 +72,9 @@ public class AccountController {
      */
     @Operation(
         operationId = "accountPut",
-        summary = "Create a new account",
+        summary = "Update a account",
         responses = {
-            @ApiResponse(responseCode = "200", description = "Ok", content = {
+            @ApiResponse(responseCode = "200", description = "Updated", content = {
                 @Content(mediaType = "application/json", schema = @Schema(implementation = Account.class))
             })
         }
@@ -87,7 +87,6 @@ public class AccountController {
     public Mono<Account> accountPut(
         @Parameter(name = "accountId", description = "", required = true, in = ParameterIn.PATH)
         @PathVariable("accountId") String accountId,
-        @Parameter(name = "account", description = "")
         @Validated @RequestBody AccountRequest account
     ) {
         return accountService.updateAccount(account, accountId);
@@ -121,9 +120,9 @@ public class AccountController {
 
 
     /**
-     * GET : Get a list of accounts for the account holder
+     * GET : Get a list of accounts for the account customer
      *
-     * @param holderId (required)
+     * @param customerId (required)
      * @return OK (status code 200)
      */
     @Operation(
@@ -140,12 +139,31 @@ public class AccountController {
         produces = {"application/json"}
     )
     public Flux<Account> accountsGet(
-        @NotNull @Parameter(name = "holderId", description = "", required = true, in = ParameterIn.QUERY)
-        @Validated @RequestParam(value = "holderId") String holderId
+        @NotNull @Parameter(name = "customerId", description = "", required = true, in = ParameterIn.QUERY)
+        @Validated @RequestParam(value = "customerId") String customerId
     ) {
-        return accountService.getAccountsByHolderId(holderId);
+        return accountService.getAccountsByCustomerId(customerId);
     }
 
-
+    /**
+     * DELETE : Delete an account exists
+     *
+     * @param accountId (required)
+     * @return Ok (status code 200)
+     */
+    @Operation(
+        operationId = "accountDelete",
+        summary = "Delete a account",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Deleted")
+        }
+    )
+    @DeleteMapping("/{accountId}")
+    public Mono<Void> accountDelete(
+        @Parameter(name = "accountId", description = "", required = true, in = ParameterIn.PATH)
+        @PathVariable("accountId") String accountId
+    ) {
+        return accountService.deleteAccount(accountId);
+    }
 
 }

@@ -2,6 +2,7 @@ package com.nttdata.account.model.account;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -23,7 +24,7 @@ public class Account {
     private BigInteger accountNumber;
     private String type;
     private String status;
-    private LocalDateTime openingDate;
+    private LocalDate openingDate;
     private BigDecimal availableBalance;
     private BigDecimal interestRate;
     private BigDecimal maintenanceCommission;

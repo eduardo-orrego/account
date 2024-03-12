@@ -4,9 +4,7 @@ import com.nttdata.account.api.request.AccountRequest;
 import com.nttdata.account.builder.AccountBuilder;
 import com.nttdata.account.business.AccountService;
 import com.nttdata.account.business.CreditCardService;
-import com.nttdata.account.business.CreditService;
 import com.nttdata.account.business.CustomerService;
-import com.nttdata.account.business.ProductService;
 import com.nttdata.account.enums.AccountTypeEnum;
 import com.nttdata.account.enums.CustomerSubTypeEnum;
 import com.nttdata.account.enums.CustomerTypeEnum;
@@ -26,26 +24,27 @@ import reactor.core.publisher.Mono;
 @Service
 public class AccountServiceImpl implements AccountService {
 
+    private final AccountRepository accountRepository;
+    private final CustomerService customerService;
+    private final CreditCardService creditCardService;
+
     @Autowired
-    private AccountRepository accountRepository;
-    @Autowired
-    private CustomerService customerService;
-    @Autowired
-    private CreditService creditService;
-    @Autowired
-    private CreditCardService creditCardService;
-    @Autowired
-    private ProductService productService;
+    public AccountServiceImpl(AccountRepository accountRepository, CustomerService customerService,
+        CreditCardService creditCardService) {
+        this.accountRepository = accountRepository;
+        this.customerService = customerService;
+        this.creditCardService = creditCardService;
+    }
 
     @Override
     public Mono<Account> saveAccount(AccountRequest accountRequest) {
 
         return customerService.getCustomerById(accountRequest.getCustomerId())
             .flatMap(customerData ->
-                validationAccount(accountRequest, customerData)
-                    .map(account -> AccountBuilder.toEntity(account, null))
-                    .flatMap(accountRepository::save)
-                    .flatMap(account -> validationCustomerProfile(account, customerData)))
+                this.validationAccount(accountRequest, customerData)
+                    .flatMap(account -> validationCustomerProfile(AccountBuilder.toEntity(account, null),
+                        customerData)))
+            .flatMap(accountRepository::save)
             .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND,
                 "No se encontraron datos del titular")))
             .doOnSuccess(account -> log.info("Successful save - accountId: ".concat(account.getId())));
@@ -85,35 +84,25 @@ public class AccountServiceImpl implements AccountService {
     private Mono<AccountRequest> validationAccount(AccountRequest accountRequest, Customer customerData) {
 
         if (customerData.getType().equals(CustomerTypeEnum.PERSONAL.name())) {
-            return this.validatePersonalAccount(accountRequest, customerData);
+            return accountRepository.existsByTypeAndCustomerId(accountRequest.getType().name(),
+                    customerData.getId())
+                .flatMap(existsAccount -> {
+                    if (Boolean.TRUE.equals(existsAccount)) {
+                        return Mono.error(new RuntimeException("El Cliente Personal ya tiene una "
+                            + "cuenta del tipo ".concat(accountRequest.getType().name())));
+                    }
+                    return Mono.just(accountRequest);
+                });
         }
         if (customerData.getType().equals(CustomerTypeEnum.BUSINESS.name())) {
-            return this.validateBusinessAccount(accountRequest);
+            if (!accountRequest.getType().name().equals(AccountTypeEnum.CHECKING.name())) {
+                return Mono.error(new RuntimeException("Solo se permite cuentas corrientes "
+                    + " para cliente empresarial"));
+            }
+            return Mono.just(accountRequest);
 
         }
         return Mono.just(accountRequest);
-    }
-
-    private Mono<AccountRequest> validatePersonalAccount(AccountRequest accountData, Customer customerData) {
-        return accountRepository.existsByTypeAndCustomerId(accountData.getType().name(),
-                customerData.getId())
-            .flatMap(existsAccount -> {
-                if (Boolean.TRUE.equals(existsAccount)) {
-                    return Mono.error(new RuntimeException("El Cliente Personal ya tiene una "
-                        + "cuenta del tipo ".concat(accountData.getType().name())));
-                }
-                return Mono.just(accountData);
-            });
-    }
-
-
-    private Mono<AccountRequest> validateBusinessAccount(AccountRequest accountData) {
-
-        if (!accountData.getType().name().equals(AccountTypeEnum.CHECKING.name())) {
-            return Mono.error(new RuntimeException("Solo se permite cuentas corrientes "
-                + " para cliente empresarial"));
-        }
-        return Mono.just(accountData);
     }
 
     private Mono<Account> validationCustomerProfile(Account accountData, Customer customerData) {

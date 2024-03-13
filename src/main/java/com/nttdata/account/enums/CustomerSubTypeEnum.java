@@ -1,15 +1,16 @@
-package com.nttdata.account.model.enums;
+package com.nttdata.account.enums;
 
 import lombok.Getter;
 
 @Getter
-public enum HolderTypeEnum {
-    PRIMARY("PRIMARY"),
-    SECONDARY("SECONDARY");
+public enum CustomerSubTypeEnum {
+    NORMAL("NORMAL"),
+    VIP("VIP"),
+    PYME("PYME");
 
     private String value;
 
-    HolderTypeEnum(String value) {
+    CustomerSubTypeEnum(String value) {
         this.value = value;
     }
 
@@ -18,8 +19,8 @@ public enum HolderTypeEnum {
         return String.valueOf(value);
     }
 
-    public static HolderTypeEnum fromValue(String value) {
-        for (HolderTypeEnum b : HolderTypeEnum.values()) {
+    public static CustomerSubTypeEnum fromValue(String value) {
+        for (CustomerSubTypeEnum b : CustomerSubTypeEnum.values()) {
             if (b.value.equals(value)) {
                 return b;
             }

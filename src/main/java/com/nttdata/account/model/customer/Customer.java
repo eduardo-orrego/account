@@ -1,24 +1,26 @@
 package com.nttdata.account.model.customer;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class Customer {
+
+    @Id
     private String id;
     private String type;
-    private String subType;
     private String status;
     private Address address;
-    private List<IdentificationDocument> identificationDocuments;
+    private IdentificationDocument identificationDocument;
     private PersonalInfo personalInfo;
     private BusinessInfo businessInfo;
     private LocalDateTime dateCreated;
     private LocalDateTime lastUpdated;
+
 }
 

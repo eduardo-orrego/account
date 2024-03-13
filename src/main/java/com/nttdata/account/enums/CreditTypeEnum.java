@@ -1,17 +1,14 @@
-package com.nttdata.account.model.enums;
+package com.nttdata.account.enums;
 
 import lombok.Getter;
 
 @Getter
-public enum CustomerTypeEnum {
-    PERSONAL("PERSONAL"),
-    BUSINESS("BUSINESS"),
-    PERSONAL_VIP("PERSONAL_VIP"),
-    BUSINESS_PYME("BUSINESS_PYME");;
-
+public enum CreditTypeEnum {
+    LOAN("LOAN"),
+    CREDIT_CARD("CREDIT_CARD");
     private String value;
 
-    CustomerTypeEnum(String value) {
+    CreditTypeEnum(String value) {
         this.value = value;
     }
 
@@ -20,8 +17,8 @@ public enum CustomerTypeEnum {
         return String.valueOf(value);
     }
 
-    public static CustomerTypeEnum fromValue(String value) {
-        for (CustomerTypeEnum b : CustomerTypeEnum.values()) {
+    public static CreditTypeEnum fromValue(String value) {
+        for (CreditTypeEnum b : CreditTypeEnum.values()) {
             if (b.value.equals(value)) {
                 return b;
             }

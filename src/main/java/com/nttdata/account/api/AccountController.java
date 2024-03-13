@@ -1,5 +1,6 @@
 package com.nttdata.account.api;
 
+import com.nttdata.account.api.request.AccountRequest;
 import com.nttdata.account.business.AccountService;
 import com.nttdata.account.model.account.Account;
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,11 +39,11 @@ public class AccountController {
     /**
      * POST : Create a new account
      *
-     * @param account (optional)
+     * @param account (required)
      * @return Created (status code 201)
      */
     @Operation(
-        operationId = "accountsPost",
+        operationId = "accountPost",
         summary = "Create a new account",
         responses = {
             @ApiResponse(responseCode = "201", description = "Created", content = {
@@ -55,11 +56,39 @@ public class AccountController {
         produces = {"application/json"},
         consumes = {"application/json"}
     )
-    public Mono<Account> accountsPost(
-        @Parameter(name = "account", description = "")
-        @Validated @RequestBody(required = false) Account account
+    public Mono<Account> accountPost(
+        @Validated @RequestBody(required = false) AccountRequest account
     ) {
         return accountService.saveAccount(account);
+    }
+
+    /**
+     * PUT : Update an account exists
+     *
+     * @param accountId (required)
+     * @param account   (required)
+     * @return Ok (status code 200)
+     */
+    @Operation(
+        operationId = "accountPut",
+        summary = "Update a account",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Updated", content = {
+                @Content(mediaType = "application/json", schema = @Schema(implementation = Account.class))
+            })
+        }
+    )
+    @PutMapping(
+        value = "/{accountId}",
+        produces = {"application/json"},
+        consumes = {"application/json"}
+    )
+    public Mono<Account> accountPut(
+        @Parameter(name = "accountId", description = "", required = true, in = ParameterIn.PATH)
+        @PathVariable("accountId") String accountId,
+        @Validated @RequestBody AccountRequest account
+    ) {
+        return accountService.updateAccount(account, accountId);
     }
 
     /**
@@ -90,9 +119,9 @@ public class AccountController {
 
 
     /**
-     * GET : Get a list of accounts for the account holder
+     * GET : Get a list of accounts for the account customer
      *
-     * @param holderId (required)
+     * @param customerId (required)
      * @return OK (status code 200)
      */
     @Operation(
@@ -109,38 +138,10 @@ public class AccountController {
         produces = {"application/json"}
     )
     public Flux<Account> accountsGet(
-        @NotNull @Parameter(name = "holderId", description = "", required = true, in = ParameterIn.QUERY)
-        @Validated @RequestParam(value = "holderId") String holderId
+        @NotNull @Parameter(name = "customerId", description = "", required = true, in = ParameterIn.QUERY)
+        @Validated @RequestParam(value = "customerId") String customerId
     ) {
-        return accountService.getAccountsByHolderId(holderId);
+        return accountService.getAccountsByCustomerId(customerId);
     }
-
-    /**
-     * PUT : Update an account exists
-     *
-     * @param account (optional)
-     * @return Ok (status code 200)
-     */
-    @Operation(
-        operationId = "accountPut",
-        summary = "Create a new account",
-        responses = {
-            @ApiResponse(responseCode = "200", description = "Ok", content = {
-                @Content(mediaType = "application/json", schema = @Schema(implementation = Account.class))
-            })
-        }
-    )
-    @PutMapping(
-        value = "",
-        produces = {"application/json"},
-        consumes = {"application/json"}
-    )
-    public Mono<Account> accountPut(
-        @Parameter(name = "account", description = "")
-        @Validated @RequestBody Account account
-    ) {
-        return accountService.updateAccount(account);
-    }
-
 
 }

@@ -9,11 +9,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BusinessInfo {
+
+    private String subType;
     private String legalName;
     private String tradeName;
     private LocalDate incorporationDate;
     private String website;
-    private String phoneNumberMain;
-    private String phoneNumberFax;
-    private ContactInfo contactInfo;
+    private String fax;
+
 }

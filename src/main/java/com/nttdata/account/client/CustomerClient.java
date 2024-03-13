@@ -26,9 +26,10 @@ public class CustomerClient {
     }
 
     public Mono<Customer> putCustomer(Customer customer) {
+
         return WebClient.create()
             .put()
-            .uri(urlPathPutCustomer)
+            .uri(urlPathPutCustomer, customer.getId())
             .accept(MediaType.APPLICATION_JSON)
             .bodyValue(customer)
             .retrieve()

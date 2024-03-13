@@ -9,10 +9,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PersonalInfo {
+
+    private String subType;
     private String fullName;
     private String nationality;
     private LocalDate birthdate;
     private String email;
-    private String phoneNumberPersonal;
-    private String phoneNumberWork;
+    private String phoneNumber;
+
 }

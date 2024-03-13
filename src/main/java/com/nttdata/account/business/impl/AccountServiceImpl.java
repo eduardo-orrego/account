@@ -1,114 +1,138 @@
 package com.nttdata.account.business.impl;
 
+import com.nttdata.account.api.request.AccountRequest;
+import com.nttdata.account.builder.AccountBuilder;
 import com.nttdata.account.business.AccountService;
-import com.nttdata.account.business.CreditService;
+import com.nttdata.account.business.CreditCardService;
 import com.nttdata.account.business.CustomerService;
+import com.nttdata.account.enums.AccountTypeEnum;
+import com.nttdata.account.enums.CustomerSubTypeEnum;
+import com.nttdata.account.enums.CustomerTypeEnum;
 import com.nttdata.account.model.account.Account;
-import com.nttdata.account.model.account.AccountHolder;
 import com.nttdata.account.model.customer.Customer;
-import com.nttdata.account.model.enums.AccountTypeEnum;
-import com.nttdata.account.model.enums.CreditTypeEnum;
-import com.nttdata.account.model.enums.CustomerSubTypeEnum;
-import com.nttdata.account.model.enums.CustomerTypeEnum;
-import com.nttdata.account.model.enums.HolderTypeEnum;
 import com.nttdata.account.repository.AccountRepository;
 import java.math.BigInteger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @Service
 public class AccountServiceImpl implements AccountService {
 
     private final AccountRepository accountRepository;
     private final CustomerService customerService;
-    private final CreditService creditService;
+    private final CreditCardService creditCardService;
 
     @Autowired
     public AccountServiceImpl(AccountRepository accountRepository, CustomerService customerService,
-        CreditService creditService) {
+        CreditCardService creditCardService) {
         this.accountRepository = accountRepository;
         this.customerService = customerService;
-        this.creditService = creditService;
+        this.creditCardService = creditCardService;
     }
+
+    @Override
+    public Mono<Account> saveAccount(AccountRequest accountRequest) {
+
+        return customerService.getCustomerById(accountRequest.getCustomerId())
+            .flatMap(customerData ->
+                this.validationAccount(accountRequest, customerData)
+                    .flatMap(account -> validationCustomerProfile(AccountBuilder.toEntity(account, null),
+                        customerData)))
+            .flatMap(accountRepository::save)
+            .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND,
+                "No se encontraron datos del titular")))
+            .doOnSuccess(account -> log.info("Successful save - accountId: ".concat(account.getId())));
+    }
+
+    @Override
+    public Mono<Account> updateAccount(AccountRequest accountRequest, String accountId) {
+        return accountRepository.existsById(accountId)
+            .flatMap(aBoolean -> {
+                if (Boolean.TRUE.equals(aBoolean)) {
+                    return accountRepository.save(AccountBuilder.toEntity(accountRequest, accountId));
+                }
+                return Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found - "
+                    + "accountId: ".concat(accountId)));
+            })
+            .doOnSuccess(account -> log.info("Successful update - accountId: ".concat(accountId)));
+    }
+
 
     @Override
     public Mono<Account> getAccountByAccountNumber(BigInteger accountNumber) {
         return accountRepository.findByAccountNumber(accountNumber)
-            .switchIfEmpty(Mono.error(new RuntimeException("Numero de cuenta no existe")));
+            .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found - "
+                + "accountNumber: ".concat(accountNumber.toString()))))
+            .doOnSuccess(customer -> log.info("Successful search - accountNumber: ".concat(accountNumber.toString())));
     }
 
     @Override
-    public Flux<Account> getAccountsByHolderId(String holderId) {
+    public Flux<Account> getAccountsByCustomerId(String customerId) {
 
-        return accountRepository.findByAccountHoldersHolderId(holderId)
-            .switchIfEmpty(Mono.error(new RuntimeException("No se encontraron cuentas asociadas al cliente "
-                .concat(holderId))));
+        return accountRepository.findByCustomerId(customerId)
+            .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found - "
+                + "holderId: ".concat(customerId))))
+            .doOnComplete(() -> log.info("Successful search - holderId: ".concat(customerId)));
     }
 
-    @Override
-    public Mono<Account> saveAccount(Account account) {
-        return validationData(account)
-            .flatMap(accountRepository::save);
-    }
+    private Mono<AccountRequest> validationAccount(AccountRequest accountRequest, Customer customerData) {
 
-    @Override
-    public Mono<Account> updateAccount(Account account) {
-        return accountRepository.save(account);
-    }
-
-    private Mono<Account> validationData(Account account) {
-
-        return customerService.getCustomerById(this.getHolderId(account))
-            .flatMap(customerData -> {
-                if (customerData.getType().equals(CustomerTypeEnum.PERSONAL.name())) {
-                    return this.validatePersonalAccount(account, customerData);
-                }
-                if (customerData.getType().equals(CustomerTypeEnum.BUSINESS.name())) {
-                    return this.validateBusinessAccount(account, customerData);
-                }
-                return Mono.just(account);
-            }).switchIfEmpty(Mono.error(new RuntimeException("No se encontraron datos del titular")));
-    }
-
-    private String getHolderId(Account account) {
-        return account.getAccountHolders().stream()
-            .filter(accountHolder -> accountHolder.getHolderType().name().equals(HolderTypeEnum.PRIMARY.name()))
-            .findFirst().map(AccountHolder::getHolderId).orElse("");
-    }
-
-    private Mono<Account> validateBusinessAccount(Account accountData, Customer customerData) {
-        if (!accountData.getType().name().equals(AccountTypeEnum.CHECKING.name())) {
-            return Mono.error(new RuntimeException("Solo se permite cuentas corrientes " +
-                " para cliente empresarial"));
+        if (customerData.getType().equals(CustomerTypeEnum.PERSONAL.name())) {
+            return accountRepository.existsByTypeAndCustomerId(accountRequest.getType().name(),
+                    customerData.getId())
+                .flatMap(existsAccount -> {
+                    if (Boolean.TRUE.equals(existsAccount)) {
+                        return Mono.error(new RuntimeException("El Cliente Personal ya tiene una "
+                            + "cuenta del tipo ".concat(accountRequest.getType().name())));
+                    }
+                    return Mono.just(accountRequest);
+                });
         }
-        return creditService.getCreditsByCustomerId(customerData.getId())
-            .any(credit -> credit.getType().equals(CreditTypeEnum.CREDIT_CARD.name()))
-            .flatMap(existsAccount -> {
-                if (Boolean.TRUE.equals(existsAccount)) {
-                    customerData.setSubType(CustomerSubTypeEnum.PYME.name());
-                    return customerService.putCustomer(customerData)
-                        .flatMap(res -> Mono.just(accountData));
-                }
-                return Mono.just(accountData);
-            });
+        if (customerData.getType().equals(CustomerTypeEnum.BUSINESS.name())) {
+            if (!accountRequest.getType().name().equals(AccountTypeEnum.CHECKING.name())) {
+                return Mono.error(new RuntimeException("Solo se permite cuentas corrientes "
+                    + " para cliente empresarial"));
+            }
+            return Mono.just(accountRequest);
+
+        }
+        return Mono.just(accountRequest);
     }
 
-    private Mono<Account> validatePersonalAccount(Account accountData, Customer customerData) {
-        return accountRepository.existsByTypeAndAccountHoldersHolderId(accountData.getType().name(),
-                customerData.getId())
-            .flatMap(existsAccount -> {
-                if (Boolean.TRUE.equals(existsAccount)) {
-                    return Mono.error(new RuntimeException("El Cliente Personal ya tiene una " +
-                        "cuenta del tipo ".concat(accountData.getType().name())));
-                }
-                if (accountData.getAvailableBalance().doubleValue() >= 500.00) {
-                    customerData.setSubType(CustomerSubTypeEnum.PYME.name());
+    private Mono<Account> validationCustomerProfile(Account accountData, Customer customerData) {
+
+        if (customerData.getType().equals(CustomerTypeEnum.PERSONAL.name())
+            && accountData.getAvailableBalance().doubleValue() >= 500.00) {
+            return this.validateUpdateCustomer(accountData, customerData, CustomerSubTypeEnum.VIP.name());
+        }
+        if (customerData.getType().equals(CustomerTypeEnum.BUSINESS.name())
+            && accountData.getType().equals(AccountTypeEnum.CHECKING.name())) {
+            return this.validateUpdateCustomer(accountData, customerData, CustomerSubTypeEnum.PYME.name());
+
+        }
+        return Mono.just(accountData);
+
+    }
+
+    private Mono<Account> validateUpdateCustomer(Account accountData, Customer customerData,
+        String customerSubType) {
+
+        return creditCardService.getCreditCards(accountData.getCustomerId())
+            .hasElements()
+            .flatMap(existsCard -> {
+                if (Boolean.TRUE.equals(existsCard)) {
+                    customerData.getPersonalInfo().setSubType(customerSubType);
                     return customerService.putCustomer(customerData)
                         .flatMap(result -> Mono.just(accountData));
                 }
                 return Mono.just(accountData);
             });
     }
+
 }

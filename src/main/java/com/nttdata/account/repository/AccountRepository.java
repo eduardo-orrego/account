@@ -9,10 +9,11 @@ import reactor.core.publisher.Mono;
 
 @Repository
 public interface AccountRepository extends ReactiveMongoRepository<Account, String> {
+
     Mono<Account> findByAccountNumber(BigInteger accountNumber);
 
-    Flux<Account> findByAccountHoldersHolderId(String holderId);
+    Flux<Account> findByCustomerId(String holderId);
 
-    Mono<Boolean> existsByTypeAndAccountHoldersHolderId(String type, String holderId);
+    Mono<Boolean> existsByTypeAndCustomerId(String type, String holderId);
 
 }

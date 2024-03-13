@@ -2,18 +2,14 @@ package com.nttdata.account.repository;
 
 import com.nttdata.account.model.account.Account;
 import java.math.BigInteger;
-import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
-import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@Repository
-public interface AccountRepository extends ReactiveMongoRepository<Account, String> {
+public interface AccountRepository {
+    Mono<Account> findAccount(BigInteger accountNumber);
+    Flux<Account> findAccounts(String holderId);
+    Mono<Account> saveAccount(Account account);
+    Mono<Boolean> findExistsAccount(String type, String holderId);
 
-    Mono<Account> findByAccountNumber(BigInteger accountNumber);
-
-    Flux<Account> findByCustomerId(String holderId);
-
-    Mono<Boolean> existsByTypeAndCustomerId(String type, String holderId);
-
+    Mono<Boolean> findExistsAccount(String accountId);
 }

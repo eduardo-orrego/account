@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.nttdata</groupId>
 	<artifactId>account</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>3.0.0-SNAPSHOT</version>
 	<name>account</name>
 	<description>Demo project for Spring Boot</description>
 	<properties>

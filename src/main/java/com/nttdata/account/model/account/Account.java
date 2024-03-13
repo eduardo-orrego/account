@@ -33,7 +33,6 @@ public class Account {
     private BigDecimal commissionMovement;
     private Integer specificDayMonthMovement;
     private String currency;
-    private String customerId;
     private List<AccountHolder> accountHolders;
     private List<AuthorizedSigner> authorizedSigners;
     private LocalDateTime lastTransactionDate;

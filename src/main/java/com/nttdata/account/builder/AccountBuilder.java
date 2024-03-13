@@ -48,7 +48,6 @@ public class AccountBuilder {
                 ? accountRequest.getSpecificDayMonthMovement()
                 : 0)
             .currency(accountRequest.getCurrency().name())
-            .customerId(accountRequest.getCustomerId())
             .accountHolders(toAccountHolderEntities(accountRequest.getAccountHolders()))
             .authorizedSigners(toAuthorizedSignerEntities(accountRequest.getAuthorizedSigners()))
             .lastTransactionDate(LocalDateTime.now())

@@ -4,6 +4,7 @@ import com.nttdata.account.enums.AccountTypeEnum;
 import com.nttdata.account.enums.CurrencyTypeEnum;
 import com.nttdata.account.enums.StatusTypeEnum;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -39,12 +40,10 @@ public class AccountRequest {
     private BigDecimal commissionMovement;
     private Integer specificDayMonthMovement;
 
-    @NotNull(message = "El campo 'customerId' no puede ser nulo")
-    private String customerId;
-
     @NotNull(message = "El campo 'currency' no puede ser nulo")
     private CurrencyTypeEnum currency;
 
+    @NotEmpty(message = "El campo accountHolders no puede estar vacío")
     @Valid
     private List<AccountHolderRequest> accountHolders;
 

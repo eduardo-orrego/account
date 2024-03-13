@@ -4,7 +4,7 @@ import com.nttdata.account.model.customer.Customer;
 import reactor.core.publisher.Mono;
 
 public interface CustomerService {
-    Mono<Customer> getCustomerById(String customerId);
+    Mono<Customer> findCustomer(String customerId);
 
-    Mono<Customer> putCustomer(Customer customer);
+    Mono<Customer> updateCustomer(Customer customer);
 }

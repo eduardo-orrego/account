@@ -21,7 +21,7 @@ public class AccountRepositoryImpl implements AccountRepository {
     public Mono<Account> findAccount(BigInteger accountNumber) {
         return accountReactiveMongodb.findByAccountNumber(accountNumber)
             .doOnSuccess(accountEntity -> log.info(
-                "Successful find - accountNumber: ".concat(accountEntity.getAccountNumber().toString())));
+                "Successful find - accountNumber: ".concat(accountNumber.toString())));
     }
 
     @Override

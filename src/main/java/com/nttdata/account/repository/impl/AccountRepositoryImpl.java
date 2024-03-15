@@ -18,6 +18,12 @@ public class AccountRepositoryImpl implements AccountRepository {
     private AccountReactiveMongodb accountReactiveMongodb;
 
     @Override
+    public Mono<Account> findAccount(String accountId) {
+        return accountReactiveMongodb.findById(accountId)
+            .doOnSuccess(result -> log.info("Successful find - accountId: ".concat(accountId)));
+    }
+
+    @Override
     public Mono<Account> findAccount(BigInteger accountNumber) {
         return accountReactiveMongodb.findByAccountNumber(accountNumber)
             .doOnSuccess(accountEntity -> log.info(
@@ -39,12 +45,7 @@ public class AccountRepositoryImpl implements AccountRepository {
     @Override
     public Mono<Boolean> findExistsAccount(String type, String holderId) {
         return accountReactiveMongodb.existsByTypeAndAccountHoldersHolderId(type, holderId)
-            .doOnSuccess(exists -> log.info("Successful exists - accountId: ".concat(holderId)));
+            .doOnSuccess(exists -> log.info("Successful find exists - accountId: ".concat(holderId)));
     }
 
-    @Override
-    public Mono<Boolean> findExistsAccount(String accountId) {
-        return accountReactiveMongodb.existsById(accountId)
-            .doOnSuccess(exists -> log.info("Successful exists - accountId: ".concat(accountId)));
-    }
 }

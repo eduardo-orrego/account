@@ -117,7 +117,6 @@ public class AccountController {
         return accountService.getAccountByAccountNumber(accountNumber);
     }
 
-
     /**
      * GET : Get a list of accounts for the account customer
      *

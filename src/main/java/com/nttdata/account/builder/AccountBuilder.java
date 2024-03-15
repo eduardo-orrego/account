@@ -3,10 +3,10 @@ package com.nttdata.account.builder;
 import com.nttdata.account.api.request.AccountHolderRequest;
 import com.nttdata.account.api.request.AccountRequest;
 import com.nttdata.account.api.request.AuthorizedSignerRequest;
+import com.nttdata.account.model.Product;
 import com.nttdata.account.model.account.Account;
 import com.nttdata.account.model.account.AccountHolder;
 import com.nttdata.account.model.account.AuthorizedSigner;
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -17,43 +17,79 @@ public class AccountBuilder {
     AccountBuilder() {
     }
 
-    public static Account toEntity(AccountRequest accountRequest, String accountId) {
+    public static Account toEntity(AccountRequest accountRequest, Product product) {
         return Account.builder()
-            .id(accountId)
-            .accountNumber(Objects.nonNull(accountRequest.getAccountNumber())
-                ? accountRequest.getAccountNumber()
-                : generateDebitNumber())
+            .accountNumber(generateDebitNumber())
             .type(accountRequest.getType().name())
             .status(accountRequest.getStatus().name())
             .openingDate(accountRequest.getOpeningDate())
-            .availableBalance(Objects.nonNull(accountRequest.getAvailableBalance())
-                ? accountRequest.getAvailableBalance()
-                : BigDecimal.valueOf(0.00))
+            .openingAmount(accountRequest.getAmount())
+            .currency(accountRequest.getCurrency().name())
+            .availableBalance(accountRequest.getAmount())
             .interestRate(Objects.nonNull(accountRequest.getInterestRate())
                 ? accountRequest.getInterestRate()
-                : BigDecimal.valueOf(0.00))
+                : product.getInterestRate())
             .maintenanceCommission(Objects.nonNull(accountRequest.getMaintenanceCommission())
                 ? accountRequest.getMaintenanceCommission()
-                : BigDecimal.valueOf(0.00))
+                : product.getMaintenanceCommission())
             .monthlyLimitMovement(Objects.nonNull(accountRequest.getMonthlyLimitMovement())
                 ? accountRequest.getMonthlyLimitMovement()
-                : 0)
+                : product.getMonthlyLimitMovement())
             .limitFreeMovements(Objects.nonNull(accountRequest.getLimitFreeMovements())
                 ? accountRequest.getLimitFreeMovements()
-                : 0)
+                : product.getLimitFreeMovements())
             .commissionMovement(Objects.nonNull(accountRequest.getCommissionMovement())
                 ? accountRequest.getCommissionMovement()
-                : BigDecimal.valueOf(0.00))
+                : product.getCommissionMovement())
             .specificDayMonthMovement(Objects.nonNull(accountRequest.getSpecificDayMonthMovement())
                 ? accountRequest.getSpecificDayMonthMovement()
-                : 0)
-            .currency(accountRequest.getCurrency().name())
-            .accountHolders(toAccountHolderEntities(accountRequest.getAccountHolders()))
-            .authorizedSigners(toAuthorizedSignerEntities(accountRequest.getAuthorizedSigners()))
+                : product.getSpecificDayMonthMovement())
+            .accountHolders(toAccountHolderEntities(accountRequest.getAccountHolders(), null))
+            .authorizedSigners(toAuthorizedSignerEntities(accountRequest.getAuthorizedSigners(), null))
             .lastTransactionDate(LocalDateTime.now())
             .dateCreated(LocalDateTime.now())
             .lastUpdated(LocalDateTime.now())
             .build();
+    }
+
+    public static Account toEntity(AccountRequest accountRequest, Account account) {
+        return Account.builder()
+            .id(account.getId())
+            .accountNumber(account.getAccountNumber())
+            .type(accountRequest.getType().name())
+            .status(accountRequest.getStatus().name())
+            .openingDate(accountRequest.getOpeningDate())
+            .openingAmount(accountRequest.getAmount())
+            .currency(accountRequest.getCurrency().name())
+            .availableBalance(Objects.nonNull(accountRequest.getAvailableBalance())
+                ? accountRequest.getAvailableBalance()
+                : account.getAvailableBalance())
+            .interestRate(Objects.nonNull(accountRequest.getInterestRate())
+                ? accountRequest.getInterestRate()
+                : account.getInterestRate())
+            .maintenanceCommission(Objects.nonNull(accountRequest.getMaintenanceCommission())
+                ? accountRequest.getMaintenanceCommission()
+                : account.getMaintenanceCommission())
+            .monthlyLimitMovement(Objects.nonNull(accountRequest.getMonthlyLimitMovement())
+                ? accountRequest.getMonthlyLimitMovement()
+                : account.getMonthlyLimitMovement())
+            .limitFreeMovements(Objects.nonNull(accountRequest.getLimitFreeMovements())
+                ? accountRequest.getLimitFreeMovements()
+                : account.getLimitFreeMovements())
+            .commissionMovement(Objects.nonNull(accountRequest.getCommissionMovement())
+                ? accountRequest.getCommissionMovement()
+                : account.getCommissionMovement())
+            .specificDayMonthMovement(Objects.nonNull(accountRequest.getSpecificDayMonthMovement())
+                ? accountRequest.getSpecificDayMonthMovement()
+                : account.getSpecificDayMonthMovement())
+            .accountHolders(toAccountHolderEntities(accountRequest.getAccountHolders(), account.getAccountHolders()))
+            .authorizedSigners(toAuthorizedSignerEntities(accountRequest.getAuthorizedSigners(),
+                account.getAuthorizedSigners()))
+            .lastTransactionDate(account.getLastTransactionDate())
+            .dateCreated(account.getDateCreated())
+            .lastUpdated(LocalDateTime.now())
+            .build();
+
     }
 
     private static BigInteger generateDebitNumber() {
@@ -69,12 +105,14 @@ public class AccountBuilder {
             .build();
     }
 
-    private static List<AccountHolder> toAccountHolderEntities(List<AccountHolderRequest> accountHolderRequestList) {
+    private static List<AccountHolder> toAccountHolderEntities(List<AccountHolderRequest> accountHolderRequestList,
+        List<AccountHolder> accountHolderListCurrent) {
 
         return Objects.nonNull(accountHolderRequestList) && !accountHolderRequestList.isEmpty()
             ? accountHolderRequestList.stream().map(AccountBuilder::toAccountHolderEntity).toList()
-            : null;
+            : accountHolderListCurrent;
     }
+
 
     private static AuthorizedSigner toAuthorizedSignerEntity(AuthorizedSignerRequest authorizedSignerRequest) {
         return AuthorizedSigner.builder()
@@ -84,9 +122,10 @@ public class AccountBuilder {
     }
 
     private static List<AuthorizedSigner> toAuthorizedSignerEntities(
-        List<AuthorizedSignerRequest> authorizedSignerRequestList) {
+        List<AuthorizedSignerRequest> authorizedSignerRequestList,
+        List<AuthorizedSigner> accountSingerListCurrent) {
         return Objects.nonNull(authorizedSignerRequestList) && !authorizedSignerRequestList.isEmpty()
             ? authorizedSignerRequestList.stream().map(AccountBuilder::toAuthorizedSignerEntity).toList()
-            : null;
+            : accountSingerListCurrent;
     }
 }

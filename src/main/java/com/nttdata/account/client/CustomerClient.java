@@ -10,10 +10,10 @@ import reactor.core.publisher.Mono;
 @Component
 public class CustomerClient {
 
-    @Value("${microservices.customer.urlPaths.getCustomerById}")
+    @Value("${microservices.customers.urlPaths.getCustomerById}")
     private String urlPathGetCustomerById;
 
-    @Value("${microservices.customer.urlPaths.putCustomer}")
+    @Value("${microservices.customers.urlPaths.putCustomer}")
     private String urlPathPutCustomer;
 
     public Mono<Customer> getCustomerById(String customerId) {

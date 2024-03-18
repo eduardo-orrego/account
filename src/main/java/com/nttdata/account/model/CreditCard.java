@@ -15,7 +15,6 @@ import org.springframework.data.annotation.Id;
 @NoArgsConstructor
 public class CreditCard {
 
-    @Id
     private String id;
     private BigInteger cardNumber;
     private String status;

@@ -7,13 +7,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class Product {
+
     private String id;
     private String type;
     private String currency;
@@ -27,4 +27,5 @@ public class Product {
     private Integer specificDayMonthMovement;
     private LocalDateTime dateCreated;
     private LocalDateTime lastUpdated;
+
 }

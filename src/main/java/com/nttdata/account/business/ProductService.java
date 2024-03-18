@@ -1,9 +1,9 @@
 package com.nttdata.account.business;
 
 import com.nttdata.account.model.Product;
-import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 public interface ProductService {
-    Flux<Product> findProducts(String typeProduct);
+    Mono<Product> findProduct(String typeProduct);
 
 }

@@ -114,18 +114,18 @@ public class AccountController {
         @Parameter(name = "accountNumber", description = "", required = true, in = ParameterIn.PATH)
         @PathVariable("accountNumber") BigInteger accountNumber
     ) {
-        return accountService.getAccountByAccountNumber(accountNumber);
+        return accountService.getAccount(accountNumber);
     }
 
     /**
      * GET : Get a list of accounts for the account customer
      *
-     * @param customerId (required)
+     * @param customerDocument (required)
      * @return OK (status code 200)
      */
     @Operation(
         operationId = "accountsGet",
-        summary = "Get a list of accounts for the user",
+        summary = "Get a list of accounts for the customer",
         responses = {
             @ApiResponse(responseCode = "200", description = "OK", content = {
                 @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Account.class)))
@@ -137,10 +137,10 @@ public class AccountController {
         produces = {"application/json"}
     )
     public Flux<Account> accountsGet(
-        @NotNull @Parameter(name = "customerId", description = "", required = true, in = ParameterIn.QUERY)
-        @Validated @RequestParam(value = "customerId") String customerId
+        @NotNull @Parameter(name = "customerDocument", description = "", required = true, in = ParameterIn.QUERY)
+        @Validated @RequestParam(value = "customerDocument") BigInteger customerDocument
     ) {
-        return accountService.getAccountsByCustomerId(customerId);
+        return accountService.getAccounts(customerDocument);
     }
 
 }

@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Slf4j
@@ -19,11 +18,11 @@ public class ProductServiceImpl implements ProductService {
     private ProductClient productClient;
 
     @Override
-    public Flux<Product> findProducts(String typeProduct) {
+    public Mono<Product> findProduct(String typeProduct) {
         return productClient.getProducts(typeProduct)
             .switchIfEmpty(Mono.defer(() -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND,
                 "No se encontraron datos del producto"))))
-            .doOnComplete(() -> log.info("Successful find Products - Type: ".concat(typeProduct)));
+            .doOnSuccess(product -> log.info("Successful find Product - Type: ".concat(typeProduct)));
     }
 
 }

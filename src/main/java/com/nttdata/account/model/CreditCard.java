@@ -19,7 +19,7 @@ public class CreditCard {
     private LocalDate expirationDate;
     private LocalDate activateDate;
     private String cvv;
-    private String customerId;
+    private BigInteger customerId;
     private BigDecimal interestRate;
     private BigDecimal availableBalance;
     private BigDecimal creditLimit;

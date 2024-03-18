@@ -100,7 +100,7 @@ public class AccountBuilder {
 
     private static AccountHolder toAccountHolderEntity(AccountHolderRequest accountHolderRequest) {
         return AccountHolder.builder()
-            .holderId(accountHolderRequest.getHolderId())
+            .customerDocument(accountHolderRequest.getCustomerDocument())
             .holderType(accountHolderRequest.getHolderType().name())
             .build();
     }
@@ -116,7 +116,7 @@ public class AccountBuilder {
 
     private static AuthorizedSigner toAuthorizedSignerEntity(AuthorizedSignerRequest authorizedSignerRequest) {
         return AuthorizedSigner.builder()
-            .signerId(authorizedSignerRequest.getSignerId())
+            .customerDocument(authorizedSignerRequest.getCustomerDocument())
             .signerType(authorizedSignerRequest.getSignerType().name())
             .build();
     }

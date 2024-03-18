@@ -12,8 +12,8 @@ public interface AccountService {
 
     Mono<Account> updateAccount(AccountRequest account, String accountId);
 
-    Mono<Account> getAccountByAccountNumber(BigInteger accountNumber);
+    Mono<Account> getAccount(BigInteger accountNumber);
 
-    Flux<Account> getAccountsByCustomerId(String customerId);
+    Flux<Account> getAccounts(BigInteger documentNumber) ;
 
 }

@@ -43,18 +43,22 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Mono<Account> saveAccount(AccountRequest accountRequest) {
-        return productService.findProducts(accountRequest.getType().name())
-            .single()
-            .flatMap(product ->
-                customerService.findCustomer(this.getHolderId(accountRequest.getAccountHolders()))
-                    .flatMap(customerData ->
-                        this.validationAccount(accountRequest, customerData, product)
-                            .map(accountValidated -> AccountBuilder.toEntity(accountValidated, product))
-                            .flatMap(accountRepository::saveAccount)
-                            .flatMap(accountEntity ->
-                                this.validationUpdateCustomerProfile(accountRequest, customerData, product)
-                                    .thenReturn(accountEntity)))
-            );
+        return accountRepository.findExistsAccount(accountRequest.getAccountNumber())
+            .flatMap(aBoolean -> {
+                if (Boolean.FALSE.equals(aBoolean)) {
+                    return customerService.findCustomer(this.getHolderId(accountRequest.getAccountHolders()))
+                        .flatMap(customerData -> productService.findProduct(accountRequest.getType().name())
+                            .flatMap(product -> this.validationAccount(accountRequest, customerData, product)
+                                .map(accountValidated -> AccountBuilder.toEntity(accountValidated, product))
+                                .flatMap(accountRepository::saveAccount)
+                                .flatMap(accountEntity ->
+                                    this.validationUpdateCustomerProfile(accountRequest, customerData, product)
+                                        .thenReturn(accountEntity))));
+                }
+                return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "There is another Account with the same Account Number: "
+                        .concat(accountRequest.getAccountNumber().toString())));
+            });
     }
 
     @Override
@@ -68,27 +72,27 @@ public class AccountServiceImpl implements AccountService {
 
 
     @Override
-    public Mono<Account> getAccountByAccountNumber(BigInteger accountNumber) {
+    public Mono<Account> getAccount(BigInteger accountNumber) {
         return accountRepository.findAccount(accountNumber)
             .switchIfEmpty(Mono.defer(() -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND,
                 "Account not found - accountNumber: ".concat(accountNumber.toString())))));
     }
 
     @Override
-    public Flux<Account> getAccountsByCustomerId(String customerId) {
+    public Flux<Account> getAccounts(BigInteger documentNumber) {
 
-        return accountRepository.findAccounts(customerId)
+        return accountRepository.findAccounts(documentNumber)
             .switchIfEmpty(
                 Mono.defer(() -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    "Account not found - holderId: ".concat(customerId)))));
+                    "Account not found - documentNumber: ".concat(documentNumber.toString())))));
     }
 
-    private String getHolderId(List<AccountHolderRequest> accountHolders) {
+    private BigInteger getHolderId(List<AccountHolderRequest> accountHolders) {
         return accountHolders.stream()
             .filter(accountHolder -> accountHolder.getHolderType().equals(HolderTypeEnum.PRIMARY))
             .findFirst()
-            .map(AccountHolderRequest::getHolderId)
-            .orElse("nothing");
+            .map(AccountHolderRequest::getCustomerDocument)
+            .orElse(BigInteger.valueOf(0L));
     }
 
     private Mono<AccountRequest> validationAccount(AccountRequest accountRequest, Customer customerData,
@@ -96,7 +100,7 @@ public class AccountServiceImpl implements AccountService {
 
         if (customerData.getType().equals(CustomerTypeEnum.PERSONAL.name())) {
             return accountRepository.findExistsAccount(accountRequest.getType().name(),
-                    customerData.getId())
+                    customerData.getIdentificationDocument().getNumber())
                 .flatMap(existsAccount -> Boolean.TRUE.equals(existsAccount)
                     ? Mono.error(new RuntimeException("El Cliente Personal ya tiene una "
                     + "cuenta del tipo ".concat(accountRequest.getType().name())))

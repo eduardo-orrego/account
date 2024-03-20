@@ -1,6 +1,7 @@
 package com.nttdata.account.client;
 
 import com.nttdata.account.model.customer.Customer;
+import java.math.BigInteger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -10,16 +11,16 @@ import reactor.core.publisher.Mono;
 @Component
 public class CustomerClient {
 
-    @Value("${microservices.customer.urlPaths.getCustomerById}")
-    private String urlPathGetCustomerById;
+    @Value("${microservices.customers.urlPaths.getCustomer}")
+    private String urlPathGetCustomer;
 
-    @Value("${microservices.customer.urlPaths.putCustomer}")
+    @Value("${microservices.customers.urlPaths.putCustomer}")
     private String urlPathPutCustomer;
 
-    public Mono<Customer> getCustomerById(String customerId) {
+    public Mono<Customer> getCustomer(BigInteger documentNumber) {
         return WebClient.create()
             .get()
-            .uri(urlPathGetCustomerById, customerId)
+            .uri(urlPathGetCustomer, documentNumber)
             .accept(MediaType.APPLICATION_JSON)
             .retrieve()
             .bodyToMono(Customer.class);

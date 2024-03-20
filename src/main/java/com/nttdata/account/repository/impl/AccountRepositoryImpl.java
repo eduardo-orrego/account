@@ -18,6 +18,12 @@ public class AccountRepositoryImpl implements AccountRepository {
     private AccountReactiveMongodb accountReactiveMongodb;
 
     @Override
+    public Mono<Account> findAccount(String accountId) {
+        return accountReactiveMongodb.findById(accountId)
+            .doOnSuccess(result -> log.info("Successful find - accountId: ".concat(accountId)));
+    }
+
+    @Override
     public Mono<Account> findAccount(BigInteger accountNumber) {
         return accountReactiveMongodb.findByAccountNumber(accountNumber)
             .doOnSuccess(accountEntity -> log.info(
@@ -25,10 +31,11 @@ public class AccountRepositoryImpl implements AccountRepository {
     }
 
     @Override
-    public Flux<Account> findAccounts(String holderId) {
-        return accountReactiveMongodb.findByAccountHoldersHolderId(holderId)
-            .doOnComplete(() -> log.info("Successful find - holderId: ".concat(holderId)));
+    public Flux<Account> findAccounts(BigInteger customerDocument) {
+        return accountReactiveMongodb.findByAccountHoldersCustomerDocument(customerDocument)
+            .doOnComplete(() -> log.info("Successful find - customerDocument: ".concat(customerDocument.toString())));
     }
+
 
     @Override
     public Mono<Account> saveAccount(Account account) {
@@ -37,14 +44,17 @@ public class AccountRepositoryImpl implements AccountRepository {
     }
 
     @Override
-    public Mono<Boolean> findExistsAccount(String type, String holderId) {
-        return accountReactiveMongodb.existsByTypeAndAccountHoldersHolderId(type, holderId)
-            .doOnSuccess(exists -> log.info("Successful exists - accountId: ".concat(holderId)));
+    public Mono<Boolean> findExistsAccount(BigInteger accountNumber) {
+        return accountReactiveMongodb.existsByAccountNumber(accountNumber)
+            .doOnSuccess(exists -> log.info("Successful find exists - accountNumber: "
+                .concat(accountNumber.toString())));
     }
 
     @Override
-    public Mono<Boolean> findExistsAccount(String accountId) {
-        return accountReactiveMongodb.existsById(accountId)
-            .doOnSuccess(exists -> log.info("Successful exists - accountId: ".concat(accountId)));
+    public Mono<Boolean> findExistsAccount(String type, BigInteger customerDocument) {
+        return accountReactiveMongodb.existsByTypeAndAccountHoldersCustomerDocument(type, customerDocument)
+            .doOnSuccess(exists -> log.info("Successful find exists - customerDocument: "
+                .concat(customerDocument.toString())));
     }
+
 }

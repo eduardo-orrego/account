@@ -12,8 +12,10 @@ public interface AccountReactiveMongodb extends ReactiveMongoRepository<Account,
 
     Mono<Account> findByAccountNumber(BigInteger accountNumber);
 
-    Flux<Account> findByAccountHoldersHolderId(String holderId);
+    Flux<Account> findByAccountHoldersCustomerDocument(BigInteger customerDocument);
 
-    Mono<Boolean> existsByTypeAndAccountHoldersHolderId(String type, String holderId);
+    Mono<Boolean> existsByTypeAndAccountHoldersCustomerDocument(String type, BigInteger customerDocument);
+
+    Mono<Boolean> existsByAccountNumber(BigInteger accountNumber);
 
 }

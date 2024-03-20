@@ -6,10 +6,12 @@ import com.nttdata.account.builder.AccountBuilder;
 import com.nttdata.account.business.AccountService;
 import com.nttdata.account.business.CreditCardService;
 import com.nttdata.account.business.CustomerService;
+import com.nttdata.account.business.ProductService;
 import com.nttdata.account.enums.AccountTypeEnum;
 import com.nttdata.account.enums.CustomerSubTypeEnum;
 import com.nttdata.account.enums.CustomerTypeEnum;
 import com.nttdata.account.enums.HolderTypeEnum;
+import com.nttdata.account.model.Product;
 import com.nttdata.account.model.account.Account;
 import com.nttdata.account.model.customer.Customer;
 import com.nttdata.account.repository.AccountRepository;
@@ -27,75 +29,90 @@ import reactor.core.publisher.Mono;
 @Service
 public class AccountServiceImpl implements AccountService {
 
-    private final CustomerService customerService;
-    private final AccountRepository accountRepository;
-    private final CreditCardService creditCardService;
+    @Autowired
+    private ProductService productService;
 
     @Autowired
-    AccountServiceImpl(CustomerService customerService, AccountRepository accountRepository,
-        CreditCardService creditCardService) {
-        this.accountRepository = accountRepository;
-        this.customerService = customerService;
-        this.creditCardService = creditCardService;
-    }
+    private CustomerService customerService;
+
+    @Autowired
+    private AccountRepository accountRepository;
+
+    @Autowired
+    private CreditCardService creditCardService;
 
     @Override
     public Mono<Account> saveAccount(AccountRequest accountRequest) {
-        return customerService.findCustomer(this.getHolderId(accountRequest.getAccountHolders()))
-            .flatMap(customerData ->
-                this.validationAccount(accountRequest, customerData)
-                    .map(accountValidated -> AccountBuilder.toEntity(accountValidated, null))
-                    .flatMap(accountRepository::saveAccount)
-                    .flatMap(accountEntity ->
-                        this.validationUpdateCustomerProfile(accountRequest, customerData)
-                            .thenReturn(accountEntity))
-            );
+        return accountRepository.findExistsAccount(accountRequest.getAccountNumber())
+            .flatMap(aBoolean -> {
+                if (Boolean.FALSE.equals(aBoolean)) {
+                    return customerService.findCustomer(this.getHolderId(accountRequest.getAccountHolders()))
+                        .flatMap(customerData -> productService.findProduct(accountRequest.getType().name())
+                            .flatMap(product -> this.validationAccount(accountRequest, customerData, product)
+                                .map(accountValidated -> AccountBuilder.toEntity(accountValidated, product))
+                                .flatMap(accountRepository::saveAccount)
+                                .flatMap(accountEntity ->
+                                    this.validationUpdateCustomerProfile(accountRequest, customerData, product)
+                                        .thenReturn(accountEntity))));
+                }
+                return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "There is another Account with the same Account Number: "
+                        .concat(accountRequest.getAccountNumber().toString())));
+            });
     }
 
     @Override
     public Mono<Account> updateAccount(AccountRequest accountRequest, String accountId) {
-        return accountRepository.findExistsAccount(accountId)
-            .flatMap(aBoolean -> Boolean.TRUE.equals(aBoolean)
-                ? accountRepository.saveAccount(AccountBuilder.toEntity(accountRequest, accountId))
-                : Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found - "
-                    + "accountId: ".concat(accountId))));
+        return accountRepository.findAccount(accountId)
+            .flatMap(account ->
+                accountRepository.saveAccount(AccountBuilder.toEntity(accountRequest, account)))
+            .switchIfEmpty(Mono.defer(() -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND,
+                "Account not found - accountId: ".concat(accountId)))));
     }
 
 
     @Override
-    public Mono<Account> getAccountByAccountNumber(BigInteger accountNumber) {
+    public Mono<Account> getAccount(BigInteger accountNumber) {
         return accountRepository.findAccount(accountNumber)
             .switchIfEmpty(Mono.defer(() -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND,
                 "Account not found - accountNumber: ".concat(accountNumber.toString())))));
     }
 
     @Override
-    public Flux<Account> getAccountsByCustomerId(String customerId) {
+    public Flux<Account> getAccounts(BigInteger documentNumber) {
 
-        return accountRepository.findAccounts(customerId)
+        return accountRepository.findAccounts(documentNumber)
             .switchIfEmpty(
                 Mono.defer(() -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    "Account not found - holderId: ".concat(customerId)))));
+                    "Account not found - documentNumber: ".concat(documentNumber.toString())))));
     }
 
-    private String getHolderId(List<AccountHolderRequest> accountHolders) {
+    private BigInteger getHolderId(List<AccountHolderRequest> accountHolders) {
         return accountHolders.stream()
             .filter(accountHolder -> accountHolder.getHolderType().equals(HolderTypeEnum.PRIMARY))
             .findFirst()
-            .map(AccountHolderRequest::getHolderId)
-            .orElse("nothing");
+            .map(AccountHolderRequest::getCustomerDocument)
+            .orElse(BigInteger.valueOf(0L));
     }
 
-    private Mono<AccountRequest> validationAccount(AccountRequest accountRequest, Customer customerData) {
+    private Mono<AccountRequest> validationAccount(AccountRequest accountRequest, Customer customerData,
+        Product product) {
 
         if (customerData.getType().equals(CustomerTypeEnum.PERSONAL.name())) {
             return accountRepository.findExistsAccount(accountRequest.getType().name(),
-                    customerData.getId())
+                    customerData.getIdentificationDocument().getNumber())
                 .flatMap(existsAccount -> Boolean.TRUE.equals(existsAccount)
                     ? Mono.error(new RuntimeException("El Cliente Personal ya tiene una "
                     + "cuenta del tipo ".concat(accountRequest.getType().name())))
                     : Mono.just(accountRequest)
                 );
+        }
+
+        if (accountRequest.getType().equals(AccountTypeEnum.SAVINGS)
+            && accountRequest.getAmount().compareTo(product.getMinimumOpeningAmount()) < 0) {
+            return Mono.error(new RuntimeException("Se necesita un monto mínimo de "
+                .concat(product.getMinimumOpeningAmount().toString())
+                .concat(" para aperturar una cuenta de ahorros")));
         }
 
         if (customerData.getType().equals(CustomerTypeEnum.BUSINESS.name())
@@ -104,29 +121,31 @@ public class AccountServiceImpl implements AccountService {
                 + " para cliente empresarial"));
 
         }
+
         return Mono.just(accountRequest);
     }
 
-    private Mono<Customer> validationUpdateCustomerProfile(AccountRequest accountRequest, Customer customerData) {
+    private Mono<Customer> validationUpdateCustomerProfile(AccountRequest accountRequest, Customer customerData,
+        Product product) {
 
         return creditCardService.findExistsCreditCard(this.getHolderId(accountRequest.getAccountHolders()))
             .flatMap(existsCard -> {
                 if (Boolean.TRUE.equals(existsCard)) {
-                    this.setCustomerDataProfile(customerData, accountRequest);
+                    this.setCustomerDataProfile(customerData, accountRequest, product);
                     return customerService.updateCustomer(customerData);
                 }
                 return Mono.just(customerData);
             });
     }
 
-    private void setCustomerDataProfile(Customer customerData, AccountRequest accountRequest) {
+    private void setCustomerDataProfile(Customer customerData, AccountRequest accountRequest, Product product) {
         if (customerData.getType().equals(CustomerTypeEnum.BUSINESS.name())) {
             customerData.getBusinessInfo().setSubType(CustomerSubTypeEnum.MYPE.name());
         }
 
         if (customerData.getType().equals(CustomerTypeEnum.PERSONAL.name())
             && accountRequest.getType().equals(AccountTypeEnum.SAVINGS)
-            && accountRequest.getAvailableBalance().doubleValue() >= 500.00) {
+            && accountRequest.getAvailableBalance().compareTo(product.getMinimumAmountPersonalVIP()) >= 0) {
             customerData.getPersonalInfo().setSubType(CustomerSubTypeEnum.VIP.name());
         }
     }

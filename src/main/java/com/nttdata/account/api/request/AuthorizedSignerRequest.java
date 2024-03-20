@@ -1,6 +1,8 @@
 package com.nttdata.account.api.request;
 
 import com.nttdata.account.enums.SignerTypeEnum;
+import jakarta.validation.constraints.NotNull;
+import java.math.BigInteger;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,7 +11,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AuthorizedSignerRequest {
-    private String signerId;
 
+    @NotNull(message = "El campo 'customerDocument' no puede ser vacío")
+    private BigInteger customerDocument;
+
+    @NotNull(message = "El campo 'signerType' no puede ser nulo")
     private SignerTypeEnum signerType;
 }

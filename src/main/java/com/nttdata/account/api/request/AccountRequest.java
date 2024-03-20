@@ -30,8 +30,11 @@ public class AccountRequest {
     @NotNull(message = "El campo 'openingDate' no puede ser nulo")
     private LocalDate openingDate;
 
-    @NotNull(message = "El campo 'availableBalance' no puede ser nulo")
-    private BigDecimal availableBalance;
+    @NotNull(message = "El campo 'amount' no puede ser nulo")
+    private BigDecimal amount;
+
+    @NotNull(message = "El campo 'currency' no puede ser nulo")
+    private CurrencyTypeEnum currency;
 
     private BigDecimal interestRate;
     private BigDecimal maintenanceCommission;
@@ -39,9 +42,7 @@ public class AccountRequest {
     private Integer limitFreeMovements;
     private BigDecimal commissionMovement;
     private Integer specificDayMonthMovement;
-
-    @NotNull(message = "El campo 'currency' no puede ser nulo")
-    private CurrencyTypeEnum currency;
+    private BigDecimal availableBalance;
 
     @NotEmpty(message = "El campo accountHolders no puede estar vacío")
     @Valid

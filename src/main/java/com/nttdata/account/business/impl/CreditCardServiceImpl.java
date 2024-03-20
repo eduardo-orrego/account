@@ -3,6 +3,7 @@ package com.nttdata.account.business.impl;
 import com.nttdata.account.business.CreditCardService;
 import com.nttdata.account.client.CreditCardClient;
 import com.nttdata.account.model.CreditCard;
+import java.math.BigInteger;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,16 +18,18 @@ public class CreditCardServiceImpl implements CreditCardService {
     private CreditCardClient creditCardClient;
 
     @Override
-    public Flux<CreditCard> findCreditCards(String customerId) {
-        return creditCardClient.getCreditCards(customerId)
-            .doOnComplete(() -> log.info("Successful find Credit Card - customerId: ".concat(customerId)));
+    public Flux<CreditCard> findCreditCards(BigInteger documentNumber) {
+        return creditCardClient.getCreditCards(documentNumber)
+            .doOnComplete(() -> log.info("Successful find Credit Card - documentNumber: "
+                .concat(documentNumber.toString())));
     }
 
     @Override
-    public Mono<Boolean> findExistsCreditCard(String customerId) {
-        return this.findCreditCards(customerId)
+    public Mono<Boolean> findExistsCreditCard(BigInteger documentNumber) {
+        return this.findCreditCards(documentNumber)
             .hasElements()
-            .doOnSuccess(exists -> log.info("Successful find exists Credit Card - customerId: ".concat(customerId)));
+            .doOnSuccess(result -> log.info("Successful find exists Credit Card - result: ".concat(result.toString())
+                .concat("- documentNumber: ").concat(documentNumber.toString())));
 
     }
 }

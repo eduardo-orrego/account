@@ -4,8 +4,11 @@ import com.nttdata.account.enums.AccountTypeEnum;
 import com.nttdata.account.enums.CurrencyTypeEnum;
 import com.nttdata.account.enums.StatusTypeEnum;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.LocalDate;
@@ -33,13 +36,14 @@ import lombok.Setter;
 @NoArgsConstructor
 public class AccountRequest {
 
+  @NotNull(message = "El campo 'accountNumber' no puede ser nulo")
+  private BigInteger accountNumber;
+
   @NotNull(message = "El campo 'type' no puede ser nulo")
   private AccountTypeEnum type;
 
   @NotNull(message = "El campo 'status' no puede ser nulo")
   private StatusTypeEnum status;
-
-  private BigInteger accountNumber;
 
   @NotNull(message = "El campo 'openingDate' no puede ser nulo")
   private LocalDate openingDate;
@@ -50,6 +54,13 @@ public class AccountRequest {
   @NotNull(message = "El campo 'currency' no puede ser nulo")
   private CurrencyTypeEnum currency;
 
+  @NotEmpty(message = "El campo accountHolders no puede estar vacío")
+  @Valid
+  private List<AccountHolderRequest> accountHolders;
+
+  @Valid
+  private List<AuthorizedSignerRequest> authorizedSigners;
+
   private BigDecimal interestRate;
   private BigDecimal maintenanceCommission;
   private Integer monthlyLimitMovement;
@@ -58,11 +69,6 @@ public class AccountRequest {
   private Integer specificDayMonthMovement;
   private BigDecimal availableBalance;
 
-  @NotEmpty(message = "El campo accountHolders no puede estar vacío")
-  @Valid
-  private List<AccountHolderRequest> accountHolders;
 
-  @Valid
-  private List<AuthorizedSignerRequest> authorizedSigners;
 
 }

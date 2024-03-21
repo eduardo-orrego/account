@@ -58,7 +58,7 @@ public class AccountServiceImpl implements AccountService {
     return accountRepository.findExistsAccount(accountRequest.getAccountNumber())
       .flatMap(aBoolean -> {
         if (Boolean.FALSE.equals(aBoolean)) {
-          return customerService.findCustomer(this.getHolderId(accountRequest.getAccountHolders()))
+          return customerService.findCustomer(this.getCustomerDocument(accountRequest.getAccountHolders()))
             .flatMap(customerData -> productService.findProduct(accountRequest.getType().name())
               .flatMap(product -> this.validationAccount(accountRequest, customerData, product)
                 .map(accountValidated -> AccountBuilder.toEntity(accountValidated, product))
@@ -99,7 +99,7 @@ public class AccountServiceImpl implements AccountService {
           "Account not found - documentNumber: ".concat(documentNumber.toString())))));
   }
 
-  private BigInteger getHolderId(List<AccountHolderRequest> accountHolders) {
+  private BigInteger getCustomerDocument(List<AccountHolderRequest> accountHolders) {
     return accountHolders.stream()
       .filter(accountHolder -> accountHolder.getHolderType().equals(HolderTypeEnum.PRIMARY))
       .findFirst()
@@ -143,7 +143,7 @@ public class AccountServiceImpl implements AccountService {
     Product product) {
 
     return creditCardService.findExistsCreditCard(
-        this.getHolderId(accountRequest.getAccountHolders()))
+        this.getCustomerDocument(accountRequest.getAccountHolders()))
       .flatMap(existsCard -> {
         if (Boolean.TRUE.equals(existsCard)) {
           this.setCustomerDataProfile(customerData, accountRequest, product);

@@ -30,6 +30,7 @@ public class ProductClient {
     return WebClient.create()
       .get()
       .uri(uriBuilder -> uriBuilder
+        .path(urlPathGetProducts)
         .queryParam("type", typeProduct)
         .build())
       .accept(MediaType.APPLICATION_JSON)

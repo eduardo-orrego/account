@@ -32,7 +32,10 @@ public class CustomerClient {
   public Mono<Customer> getCustomer(BigInteger documentNumber) {
     return WebClient.create()
       .get()
-      .uri(urlPathGetCustomer, documentNumber)
+      .uri(uriBuilder -> uriBuilder
+        .path(urlPathGetCustomer)
+        .queryParam("documentNumber", documentNumber)
+        .build())
       .accept(MediaType.APPLICATION_JSON)
       .retrieve()
       .bodyToMono(Customer.class);

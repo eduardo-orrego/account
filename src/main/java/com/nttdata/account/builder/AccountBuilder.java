@@ -31,7 +31,9 @@ public class AccountBuilder {
 
   public static Account toEntity(AccountRequest accountRequest, Product product) {
     return Account.builder()
-      .accountNumber(generateDebitNumber())
+      .accountNumber(Objects.nonNull(accountRequest.getAccountNumber())
+        ? accountRequest.getAccountNumber()
+        : generateDebitNumber())
       .type(accountRequest.getType().name())
       .status(accountRequest.getStatus().name())
       .openingDate(accountRequest.getOpeningDate())
@@ -67,7 +69,9 @@ public class AccountBuilder {
   public static Account toEntity(AccountRequest accountRequest, Account account) {
     return Account.builder()
       .id(account.getId())
-      .accountNumber(account.getAccountNumber())
+      .accountNumber(Objects.nonNull(accountRequest.getAccountNumber())
+        ? accountRequest.getAccountNumber()
+        : account.getAccountNumber())
       .type(accountRequest.getType().name())
       .status(accountRequest.getStatus().name())
       .openingDate(accountRequest.getOpeningDate())

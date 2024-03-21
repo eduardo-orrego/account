@@ -10,19 +10,31 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 
+/**
+ * Class: ProductServiceImpl. <br/>
+ * <b>Bootcamp NTTDATA</b><br/>
+ *
+ * @author NTTDATA
+ * @version 1.0
+ *   <u>Developed by</u>:
+ *   <ul>
+ *   <li>Developer Carlos</li>
+ *   </ul>
+ * @since 1.0
+ */
 @Slf4j
 @Service
 public class ProductServiceImpl implements ProductService {
 
-    @Autowired
-    private ProductClient productClient;
+  @Autowired
+  private ProductClient productClient;
 
-    @Override
-    public Mono<Product> findProduct(String typeProduct) {
-        return productClient.getProducts(typeProduct)
-            .switchIfEmpty(Mono.defer(() -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND,
-                "No se encontraron datos del producto"))))
-            .doOnSuccess(product -> log.info("Successful find Product - Type: ".concat(typeProduct)));
-    }
+  @Override
+  public Mono<Product> findProduct(String typeProduct) {
+    return productClient.getProducts(typeProduct)
+      .switchIfEmpty(Mono.defer(() -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND,
+        "No se encontraron datos del producto"))))
+      .doOnSuccess(product -> log.info("Successful find Product - Type: ".concat(typeProduct)));
+  }
 
 }

@@ -10,7 +10,7 @@ server:
   port: 8083
 
 microservices:
-  customer:
+  customers:
     urlPaths:
       getCustomer: http://localhost:8081/api/customers
       putCustomer: http://localhost:8081/api/customers/{customerId}
@@ -19,4 +19,4 @@ microservices:
       getCreditCards: http://localhost:8086/api/creditCards
   products:
     urlPaths:
-      getProducts: http://localhost:8086/api/products
+      getProduct: http://localhost:8086/api/products

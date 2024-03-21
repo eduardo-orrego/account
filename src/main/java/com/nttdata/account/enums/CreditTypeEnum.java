@@ -2,27 +2,20 @@ package com.nttdata.account.enums;
 
 import lombok.Getter;
 
+/**
+ * Class: CreditTypeEnum. <br/>
+ * <b>Bootcamp NTTDATA</b><br/>
+ *
+ * @author NTTDATA
+ * @version 1.0
+ *   <u>Developed by</u>:
+ *   <ul>
+ *   <li>Developer Carlos</li>
+ *   </ul>
+ * @since 1.0
+ */
 @Getter
 public enum CreditTypeEnum {
-    LOAN("LOAN"),
-    CREDIT_CARD("CREDIT_CARD");
-    private String value;
-
-    CreditTypeEnum(String value) {
-        this.value = value;
-    }
-
-    @Override
-    public String toString() {
-        return String.valueOf(value);
-    }
-
-    public static CreditTypeEnum fromValue(String value) {
-        for (CreditTypeEnum b : CreditTypeEnum.values()) {
-            if (b.value.equals(value)) {
-                return b;
-            }
-        }
-        throw new IllegalArgumentException("Unexpected value '" + value + "'");
-    }
+  LOAN,
+  CREDIT_CARD
 }

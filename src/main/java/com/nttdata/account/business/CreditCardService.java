@@ -19,6 +19,4 @@ import reactor.core.publisher.Mono;
  */
 public interface CreditCardService {
   Flux<CreditCard> findCreditCards(BigInteger documentNumber);
-
-  Mono<Boolean> findExistsCreditCard(BigInteger documentNumber);
 }

@@ -34,7 +34,8 @@ public class ProductServiceImpl implements ProductService {
     return productClient.getProducts(typeProduct)
       .switchIfEmpty(Mono.defer(() -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND,
         "No se encontraron datos del producto"))))
-      .doOnSuccess(product -> log.info("Successful find Product - Type: ".concat(typeProduct)));
+      .doOnSuccess(customer -> log.info(String.format("Successful find Product - typeProduct: %s"
+        ,typeProduct)));
   }
 
 }

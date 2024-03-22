@@ -58,7 +58,8 @@ public class AccountServiceImpl implements AccountService {
     return accountRepository.findExistsAccount(accountRequest.getAccountNumber())
       .flatMap(aBoolean -> {
         if (Boolean.FALSE.equals(aBoolean)) {
-          return customerService.findCustomer(this.getCustomerDocument(accountRequest.getAccountHolders()))
+          return customerService.findCustomer(this.getCustomerDocument(
+              accountRequest.getAccountHolders()))
             .flatMap(customerData -> productService.findProduct(accountRequest.getType().name())
               .flatMap(product -> this.validationAccount(accountRequest, customerData, product)
                 .map(accountValidated -> AccountBuilder.toEntity(accountValidated, product))
@@ -94,9 +95,8 @@ public class AccountServiceImpl implements AccountService {
   public Flux<Account> getAccounts(BigInteger documentNumber) {
 
     return accountRepository.findAccounts(documentNumber)
-      .switchIfEmpty(
-        Mono.defer(() -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND,
-          "Account not found - documentNumber: ".concat(documentNumber.toString())))));
+      .switchIfEmpty(Mono.defer(() -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND,
+        "Account not found - documentNumber: ".concat(documentNumber.toString())))));
   }
 
   private BigInteger getCustomerDocument(List<AccountHolderRequest> accountHolders) {
@@ -115,55 +115,57 @@ public class AccountServiceImpl implements AccountService {
       return accountRepository.findExistsAccount(accountRequest.getType().name(),
           customerData.getIdentificationDocument().getNumber())
         .flatMap(existsAccount -> Boolean.TRUE.equals(existsAccount)
-          ? Mono.error(new RuntimeException("El Cliente Personal ya tiene una "
-          + "cuenta del tipo ".concat(accountRequest.getType().name())))
+          ? Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST,
+          "El Cliente Personal ya tiene una cuenta del tipo "
+            .concat(accountRequest.getType().name())))
           : Mono.just(accountRequest)
         );
     }
 
     if (accountRequest.getType().equals(AccountTypeEnum.SAVINGS)
-      && accountRequest.getAmount().compareTo(product.getMinimumOpeningAmount()) < 0) {
-      return Mono.error(new RuntimeException("Se necesita un monto mínimo de "
-        .concat(product.getMinimumOpeningAmount().toString())
-        .concat(" para aperturar una cuenta de ahorros")));
+      && accountRequest.getOpeningAmount().compareTo(product.getMinimumOpeningAmount()) < 0) {
+      return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST,
+        "Se necesita un monto mínimo de ".concat(product.getMinimumOpeningAmount().toString())
+          .concat(" para aperturar una cuenta de ahorros")));
     }
 
     if (customerData.getType().equals(CustomerTypeEnum.BUSINESS.name())
       && !accountRequest.getType().equals(AccountTypeEnum.CHECKING)) {
-      return Mono.error(new RuntimeException("Solo se permite cuentas corrientes "
-        + " para cliente empresarial"));
-
+      return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST,
+        "Solo se permite cuentas corrientes para cliente empresarial"));
     }
 
     return Mono.just(accountRequest);
   }
 
   private Mono<Customer> validationUpdateCustomerProfile(AccountRequest accountRequest,
-    Customer customerData,
-    Product product) {
+    Customer customerData, Product product) {
 
-    return creditCardService.findExistsCreditCard(
+    return creditCardService.findCreditCards(
         this.getCustomerDocument(accountRequest.getAccountHolders()))
+      .singleOrEmpty()
       .flatMap(existsCard -> {
-        if (Boolean.TRUE.equals(existsCard)) {
-          this.setCustomerDataProfile(customerData, accountRequest, product);
-          return customerService.updateCustomer(customerData);
-        }
-        return Mono.just(customerData);
-      });
+        this.setCustomerDataProfile(customerData, accountRequest, product);
+        return customerService.updateCustomer(customerData);
+      })
+      .switchIfEmpty(Mono.defer(()->Mono.just(customerData)));
   }
 
   private void setCustomerDataProfile(Customer customerData, AccountRequest accountRequest,
     Product product) {
     if (customerData.getType().equals(CustomerTypeEnum.BUSINESS.name())) {
       customerData.getBusinessInfo().setSubType(CustomerSubTypeEnum.MYPE.name());
+      log.info(String.format("La empresa (%s) cambia de perfil NORMAL a MYPE",
+        customerData.getIdentificationDocument().getNumber()));
     }
 
     if (customerData.getType().equals(CustomerTypeEnum.PERSONAL.name())
       && accountRequest.getType().equals(AccountTypeEnum.SAVINGS)
-      && accountRequest.getAvailableBalance().compareTo(
+      && accountRequest.getOpeningAmount().compareTo(
       product.getMinimumAmountPersonalVip()) >= 0) {
       customerData.getPersonalInfo().setSubType(CustomerSubTypeEnum.VIP.name());
+      log.info(String.format("La persona (%s) cambia de perfil NORMAL a VIP",
+        customerData.getIdentificationDocument().getNumber()));
     }
   }
 

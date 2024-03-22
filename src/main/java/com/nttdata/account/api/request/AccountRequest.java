@@ -4,11 +4,8 @@ import com.nttdata.account.enums.AccountTypeEnum;
 import com.nttdata.account.enums.CurrencyTypeEnum;
 import com.nttdata.account.enums.StatusTypeEnum;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.LocalDate;
@@ -48,8 +45,8 @@ public class AccountRequest {
   @NotNull(message = "El campo 'openingDate' no puede ser nulo")
   private LocalDate openingDate;
 
-  @NotNull(message = "El campo 'amount' no puede ser nulo")
-  private BigDecimal amount;
+  @NotNull(message = "El campo 'openingAmount' no puede ser nulo")
+  private BigDecimal openingAmount;
 
   @NotNull(message = "El campo 'currency' no puede ser nulo")
   private CurrencyTypeEnum currency;

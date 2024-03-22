@@ -35,15 +35,15 @@ public class CustomerServiceImpl implements CustomerService {
     return customerClient.getCustomer(numberDocument)
       .switchIfEmpty(Mono.defer(() -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND,
         "No se encontraron datos del titular de la cuenta"))))
-      .doOnSuccess(customerEntity -> log.info("Successful find - numberDocument: "
-        .concat(numberDocument.toString())));
+      .doOnSuccess(customer -> log.info(String.format("Successful find Customer - numberDocument:" +
+        " %s",numberDocument)));
   }
 
   @Override
   public Mono<Customer> updateCustomer(Customer customer) {
     return customerClient.putCustomer(customer)
-      .doOnSuccess(customerEntity -> log.info("Successful update Customer Id: "
-        .concat(customerEntity.getId())));
+      .doOnSuccess(result -> log.info(String.format("Successful save Customer - numberDocument:" +
+        " %s",customer.getId())));
   }
 
 }

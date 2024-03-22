@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 /**
  * Class: CreditCardServiceImpl. <br/>
@@ -32,16 +31,7 @@ public class CreditCardServiceImpl implements CreditCardService {
   @Override
   public Flux<CreditCard> findCreditCards(BigInteger documentNumber) {
     return creditCardClient.getCreditCards(documentNumber)
-      .doOnComplete(() -> log.info("Successful find Credit Card - documentNumber: "
-        .concat(documentNumber.toString())));
-  }
-
-  @Override
-  public Mono<Boolean> findExistsCreditCard(BigInteger documentNumber) {
-    return this.findCreditCards(documentNumber)
-      .hasElements()
-      .doOnSuccess(result -> log.info("Successful find exists Credit Card - documentNumber: "
-        .concat(documentNumber.toString())));
-
+      .doOnComplete(() -> log.info(String.format("Successful find Credit Card - documentNumber: %s",
+        documentNumber)));
   }
 }

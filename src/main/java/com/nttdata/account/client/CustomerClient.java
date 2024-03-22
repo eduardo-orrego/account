@@ -2,10 +2,14 @@ package com.nttdata.account.client;
 
 import com.nttdata.account.model.customer.Customer;
 import java.math.BigInteger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 
 /**
@@ -20,6 +24,7 @@ import reactor.core.publisher.Mono;
  *   </ul>
  * @since 1.0
  */
+@Slf4j
 @Component
 public class CustomerClient {
 
@@ -30,15 +35,24 @@ public class CustomerClient {
   private String urlPathPutCustomer;
 
   public Mono<Customer> getCustomer(BigInteger documentNumber) {
-    return WebClient.create()
+    return WebClient.create(urlPathGetCustomer)
       .get()
       .uri(uriBuilder -> uriBuilder
-        .path(urlPathGetCustomer)
         .queryParam("documentNumber", documentNumber)
         .build())
       .accept(MediaType.APPLICATION_JSON)
       .retrieve()
-      .bodyToMono(Customer.class);
+      .bodyToMono(Customer.class)
+      .onErrorResume(WebClientResponseException.class, ex -> {
+        if (ex.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
+          log.info(String.format("El Servicio Customers no logro obtener datos " +
+            "- documentNumber: %s", documentNumber));
+          return Mono.empty();
+        }
+        log.info("Ocurrio un error al intentar comunicarse con el servicio Customers");
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+          "Ocurrio un error al intentar comunicarse con el servicio Customers");
+      });
   }
 
   public Mono<Customer> putCustomer(Customer customer) {
